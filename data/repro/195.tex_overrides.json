@@ -1,0 +1,38 @@
+{
+ "_why": "S22 Missing Link: (1) glow lines (shoulders, chest, shins): MI_CH_P_EVE_Nikke_05_Emissive was built as flat FFFF00 without emission (SB 'Eye Core HDR Tint' FFFF00; the original photo reads orange-red) -> orange-red emissive. The SB tint is yellow, the photo orange: photo followed, conflict noted. (2) sheer suit (Skin_02, SB clearcoat shading 4 over the skin texture) read as plain pink skin -> darker smoky brown multiply and lower roughness (glossy). Skin_01 (real skin) untouched. (3) Decal: masked (BlendMode 1) -> alpha cut-out from its texture alpha. Skin_02 built as std (it is the clearcoat suit, SB shading 4): as a skin material the automatic skin-tone gain undid the darkening.",
+ "specs": {
+  "MI_CH_P_EVE_Nikke_05_Emissive": {
+   "kind": "flat",
+   "hex": "FF5A1A",
+   "fx": {
+    "emissive": {
+     "hex": "FF4A10",
+     "power": 8
+    },
+    "flatRough": 0.3
+   }
+  },
+  "MI_CH_P_EVE_Nikke_05_Skin_02": {
+   "fxAdd": {
+    "albedoMul": "46362E",
+    "roughMul": 0.45
+   },
+   "kind": "std",
+   "orm": "CH_P_EVE_Nikke_05_Skin_02_ORM",
+   "nrm": "CH_P_EVE_Nikke_05_Skin_02_N"
+  },
+  "MI_CH_P_EVE_Nikke_05_Decal": {
+   "fxAdd": {
+    "alphaClip": [
+     "CH_P_EVE_Nikke_05_Decal_A",
+     3,
+     0.5
+    ]
+   }
+  }
+ },
+ "_why_p3": "P3 (2026-10-21): Skin_02 is the SB clearcoat suit (MA_CH_Standard_Ver03, shading 4), not a skin material; the builder's name rule gave it SSSParam 1. EVE_SSS_NOT_SKIN takes it out (SSS 0, as every other non-skin material). Everything else = S22_v1.",
+ "env": {
+  "EVE_SSS_NOT_SKIN": "MI_CH_P_EVE_Nikke_05_Skin_02"
+ }
+}

@@ -1,0 +1,5 @@
+{"_why": "S17 Red Fashion: small yellow lights on the chest centre and left waist were dark. SB MI_CH_P_EVE_26_Upper: Emissive = CH_P_EVE_26_Upper_E, EmissiveColor FFFF00, EmissivePower 9 (Lower: _Lower_E, power 1 = barely lit). The pipeline never built emissive -> Upper *_E colours as emissive (power 6), Lower at power 1 like SB.",
+ "specs": {
+  "MI_CH_P_EVE_26_Upper": {"fxAdd": {"emissive": {"tex": "CH_P_EVE_26_Upper_E", "rgb": true, "hex": "FFFFFF", "power": 6}}},
+  "MI_CH_P_EVE_26_Lower": {"fxAdd": {"emissive": {"tex": "CH_P_EVE_26_Lower_E", "rgb": true, "hex": "FFFFFF", "power": 1}}}
+ }}

@@ -1,0 +1,5 @@
+{"_why": "S10 Racer's High: (1) the smile device under the neck: MI_CH_P_EVE_41_Emissive built as flat FFED00 without emission (SB 'Eye Core HDR Tint' FFED00); the original photo shows it orange-red -> orange-red emissive (photo followed; SB tint is yellow - conflict noted). (2) bodysuit/trousers (Lower, SB clearcoat shading 4) read neutral black with broad soft highlights -> lower roughness and a slight wine multiply (dark wine reflection of the original). Kept opaque (not a stocking), cut-outs unchanged.",
+ "specs": {
+  "MI_CH_P_EVE_41_Emissive": {"kind": "flat", "hex": "FF5A1A", "fx": {"emissive": {"hex": "FF4A10", "power": 6}, "flatRough": 0.3}},
+  "MI_CH_P_EVE_41_Lower": {"fxAdd": {"roughMul": 0.45, "albedoMul": "7A4850"}}
+ }}

@@ -1,0 +1,5 @@
+{"_why": "S07 Daily Force: red points on the waist part and the skirt's button row. SB MI_CH_P_EVE_39_Upper: Emissive = CH_P_EVE_39_Upper_RGB, Emissive_CH 0000FF (B), EmissiveColor FF4A00, EmissivePower 20; MI_CH_P_EVE_39_Lower: Emissive = CH_P_EVE_39_Lower_DetailMask (B channel: 0.1 % coverage = small dots), EmissivePower 15. The pipeline never built emissive -> grey buttons. Both now emit red-orange from their B channel. Nothing else changed (rib knit, denim, knee socks kept).",
+ "specs": {
+  "MI_CH_P_EVE_39_Upper": {"fxAdd": {"emissive": {"tex": "CH_P_EVE_39_Upper_RGB", "ch": 2, "thr": 0.2, "hex": "FF4A00", "power": 8}}},
+  "MI_CH_P_EVE_39_Lower": {"fxAdd": {"emissive": {"tex": "CH_P_EVE_39_Lower_DetailMask", "ch": 2, "thr": 0.2, "hex": "FF3A10", "power": 8}}}
+ }}

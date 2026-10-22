@@ -1,0 +1,23 @@
+{
+ "_why": "S23 Cooling Suit: the thigh 'SUPER' logo (and small print) is a separate decal mesh with material MI_VietaCos004_Decal. That material has no SB json, so make_eve_auto built it as a texture-less flat and then dropped it ('dropMats': texture-less decals drew as dark patches, Breakcat leg 10-19) -> logo missing. The decal texture does exist (CH_P_EVE_Nikke_06_Decal_A / _ORM): kept in the mesh (settings dropMats []) and textured with alpha cut-out. Pink suit gloss: UV1 (suit + socks + shoes, material map) roughness x0.7 - mild, since the socks share the material; jacket (UV2) untouched.",
+ "specs": {
+  "MI_VietaCos004_Decal": {
+   "kind": "std",
+   "base": "CH_P_EVE_Nikke_06_Decal_A",
+   "orm": "CH_P_EVE_Nikke_06_Decal_ORM",
+   "nrm": "FlatNormal",
+   "fx": {
+    "alphaClip": [
+     "CH_P_EVE_Nikke_06_Decal_A",
+     3,
+     0.5
+    ]
+   }
+  },
+  "MI_CH_P_EVE_Nikke_06_UV1": {
+   "fx": {
+    "roughMul": 0.7
+   }
+  }
+ }
+}

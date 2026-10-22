@@ -1,0 +1,32 @@
+{
+ "_why": "S09 Moran: SB MI_CH_P_EVE_34_Suit uses ML_RoyalSilk (mask CH_P_EVE_34_Cloth_Mask01 R, SilkTint F3DFBE ivory, pattern T_Lacepattern_01_A tiled 4x, PatternTint D2BF7F, intensity 0.63); the build used only the grey cloth albedo (mean 0.33) -> blue-grey dress without the jacquard. Rebuilt with that layer (dragon art outside the mask kept). ACC: SB Pattern01_Tint 212121 (dark straps / shoe laces, as in the original photo) instead of the earlier white F2F2F2 override. Dragon art: SB Base Color Tint FFDA00 applied outside the silk mask only (gold dragon, ivory silk). Stocking (BB, StkMask): sheer 0.45 with the skin shading kept instead of 0.30 flat skin tone.",
+ "specs": {
+  "MI_CH_P_EVE_34_Suit": {
+   "fx": {
+    "royalSilk": [
+     "CH_P_EVE_34_Cloth_Mask01",
+     0,
+     "F3DFBE",
+     "T_Lacepattern_01_A",
+     "D2BF7F",
+     4.0,
+     0.63
+    ],
+    "tintOutside": "FFDA00",
+    "tintGain": 1.25
+   }
+  },
+  "MI_CH_P_EVE_34_ACC": {
+   "hex": "2A2A2A",
+   "fx": {}
+  },
+  "MI_CH_P_EVE_34_BB": {
+   "fx": {
+    "stkSheer": 0.45,
+    "stkKeepShade": true,
+    "stkColor": "0A090A",
+    "stkRough": 0.55
+   }
+  }
+ }
+}

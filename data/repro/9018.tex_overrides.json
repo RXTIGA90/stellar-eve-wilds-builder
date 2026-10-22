@@ -1,0 +1,5 @@
+{"_why": "S06 Daily Mascot: (1) jumper / skirt (MI_EVE_Cos_18_01, knit, FuzzLayer) built with its ORM roughness read glossy-leathery in the neutral preview; the original is matte knit -> roughness x1.6. (2) stocking (MI_EVE_Cos_18_02 layer, CH_costume_13_02_Mask R, tint 141213 from the earlier approved fix) kept, a bit more skin through (0.30 -> 0.36) for the brown-black sheer of the original. (3) SB lists Emissive = EVE_Cos_18_01_Mask, EmissivePower 10 (never built): the shoulder fixing's green point -> green emissive from that mask's B channel (1.8 % coverage). Channel choice inferred, check the v1 render.",
+ "env": {"EVE_STK_SHEER": "0.36"},
+ "specs": {
+  "MI_EVE_Cos_18_01": {"fxAdd": {"roughMul": 1.6, "emissive": {"tex": "EVE_Cos_18_01_Mask", "ch": 2, "thr": 0.3, "hex": "6CFF2A", "power": 6}}}
+ }}
