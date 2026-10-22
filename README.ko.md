@@ -72,20 +72,20 @@
 | 의상 20벌 | `-Jobs 3`으로 19분 (한 벌씩이면 약 45분) |
 | **합계** | **27분** |
 
-**의상 목록** (굵은 글씨 = 한국어 게임 이름, 아래 줄 = 영어 게임 이름. 같은 갑옷이 두 줄로 나오면 이브 의상은 ◆ 줄입니다)
+**의상 목록** (굵은 글씨 = 한국어 게임 이름, 아래 줄 = 영어 게임 이름. 외형 목록에 같은 갑옷 이름이 두 개 나오면 이름 옆에 ◆ 표시가 있는 쪽이 이브 의상이고, 다른 쪽은 원래 갑옷입니다)
 
 | 번호 | 이브 의상 (스텔라 블레이드 이름) | 몬헌에서 입을 갑옷 (한국어 / 영어 게임) | 외형 메뉴 위치 | DLC | 코드 |
 |---|---|---|---|---|---|
 | 27 | **오션 메이드**<br>Ocean Maid | **옷 타입 4 (옷β ◆)**<br>Outfit type 4 (β ◆) | 차림새 변경 → 헌터 → 옷 타입 | - | `CH_P_EVE_27` |
 | 63 | **웨이브 다이버 비키니**<br>Wave Diver Bikini | **옷 타입 3 (옷β ●)**<br>Outfit type 3 (β ●) | 차림새 변경 → 헌터 → 옷 타입 | - | `CH_P_EVE_63` |
 | 144 | **플래닛 다이브 슈트(7th)**<br>Planet Diving Suit (7th) | **다하딜라γ**<br>Dahaad γ | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_09` |
-| 146 | **워 드레스**<br>War Dress | **앵파α**<br>Sakuratide α<br>(목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_59_TypeB` |
-| 147 | **엘레강스 드레스**<br>Elegant Dress | **블로섬α**<br>Blossom α<br>(목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_P_EVE_Nikke_02` |
-| 148 | **플래닛 다이브 슈트(6th)**<br>Planet Diving Suit (6th) | **아피α**<br>Afi α<br>(목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_08` |
-| 149 | **블루 몬순**<br>Blue Monsoon | **다이버α**<br>Diver α<br>(몸통과 허리 둘 다 입기, 목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_43` |
+| 146 | **워 드레스**<br>War Dress | **앵파α**<br>Sakuratide α<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_59_TypeB` |
+| 147 | **엘레강스 드레스**<br>Elegant Dress | **블로섬α**<br>Blossom α<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_P_EVE_Nikke_02` |
+| 148 | **플래닛 다이브 슈트(6th)**<br>Planet Diving Suit (6th) | **아피α**<br>Afi α<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_08` |
+| 149 | **블루 몬순**<br>Blue Monsoon | **다이버α**<br>Diver α<br>(몸통과 허리 둘 다 입기, 같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_43` |
 | 150 | **요르하 비공식 의례복**<br>YoRHa Unofficial Ceremonial Attire | **고스투라α**<br>Dreamwalker α | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NieR | `CH_P_EVE_Nier_03` |
 | 151 | **모티베이션**<br>Motivation | **하베스트α**<br>Harvest α | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_25` |
-| 152 | **사이버 버니**<br>Cyber Bunny | **세레모니얼α**<br>Ceremonial α<br>(목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_47` |
+| 152 | **사이버 버니**<br>Cyber Bunny | **세레모니얼α**<br>Ceremonial α<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_47` |
 | 153 | **산타 드레스**<br>Santa Dress | **오리온α**<br>Orion α | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_Christmas_01` |
 | 156 | **오르카 엔지니어**<br>Orca Engineer | **역경 아머α**<br>Bale Armor α | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_15_V02` |
 | 157 | **포세컨즈 디스트로이드 데님**<br>FourSeconds Destroyed Denim<br>(재현 데이터 없음: 자동 빌드 그대로, 게임 확인 안 됨) | **오메가 의상α**<br>Omega Attire α<br>(게임 확인 안 됨(자동 빌드)) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_51` |
@@ -93,10 +93,10 @@
 | 159 | **데일리 포스**<br>Daily Force | **퀸α**<br>Sororal α | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_39` |
 | 185 | **레드 패션**<br>Red Passion | **길드나이트**<br>Guild Knight | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_26` |
 | 190 | **포세컨즈 에브리데이 웨어**<br>FourSeconds Everyday Wear | **노블레스**<br>Noblesse | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_50_TypeB` |
-| 192 | **냉각 슈트**<br>Cooling Suit | **브레이크캣**<br>Cypurrpunk<br>(목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_P_EVE_Nikke_06` |
+| 192 | **냉각 슈트**<br>Cooling Suit | **브레이크캣**<br>Cypurrpunk<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_P_EVE_Nikke_06` |
 | 195 | **미싱 링크**<br>Missing Link | **코스모로이드**<br>Cosmoloid | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_P_EVE_Nikke_05` |
-| 9041 | **레이서즈 하이**<br>Racer's High | **미츠네β**<br>Mizutsune β<br>(목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_41` |
-| 9018 | **데일리 마스코트**<br>Daily Mascot | **레다젤트γ**<br>Rey Dau γ<br>(목록의 ◆ 줄) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_18` |
+| 9041 | **레이서즈 하이**<br>Racer's High | **미츠네β**<br>Mizutsune β<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_41` |
+| 9018 | **데일리 마스코트**<br>Daily Mascot | **레다젤트γ**<br>Rey Dau γ<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_18` |
 | 9034 | **모란**<br>Moutan Peony | **이그졸스γ**<br>Nu Udra γ | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_34_body` |
 
 ## 제거

@@ -76,20 +76,20 @@
 | All 20 outfits | 19 min with `-Jobs 3` (one at a time: about 45 min) |
 | **Total** | **27 min** |
 
-**Outfits** (bold = name in the English game, second line = Korean game; when the same armor has two rows, Eve's outfit is the ◆ row)
+**Outfits** (bold = name in the English game, second line = Korean game; if the appearance list shows the same armor name twice, the one marked ◆ is Eve's outfit and the other is the normal armor)
 
 | id | Eve outfit (Stellar Blade name) | Armor to wear in Wilds (English / Korean game) | Where in the appearance menu | DLC | Code |
 |---|---|---|---|---|---|
 | 27 | **Ocean Maid**<br>오션 메이드 | **Outfit type 4 (β ◆)**<br>옷 타입 4 (옷β ◆) | Change Appearance → Hunter → outfit type | - | `CH_P_EVE_27` |
 | 63 | **Wave Diver Bikini**<br>웨이브 다이버 비키니 | **Outfit type 3 (β ●)**<br>옷 타입 3 (옷β ●) | Change Appearance → Hunter → outfit type | - | `CH_P_EVE_63` |
 | 144 | **Planet Diving Suit (7th)**<br>플래닛 다이브 슈트(7th) | **Dahaad γ**<br>다하딜라γ | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_09` |
-| 146 | **War Dress**<br>워 드레스 | **Sakuratide α**<br>앵파α<br>(the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_59_TypeB` |
-| 147 | **Elegant Dress**<br>엘레강스 드레스 | **Blossom α**<br>블로섬α<br>(the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_P_EVE_Nikke_02` |
-| 148 | **Planet Diving Suit (6th)**<br>플래닛 다이브 슈트(6th) | **Afi α**<br>아피α<br>(the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_08` |
-| 149 | **Blue Monsoon**<br>블루 몬순 | **Diver α**<br>다이버α<br>(wear it on Chest and Waist, the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_43` |
+| 146 | **War Dress**<br>워 드레스 | **Sakuratide α**<br>앵파α<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_59_TypeB` |
+| 147 | **Elegant Dress**<br>엘레강스 드레스 | **Blossom α**<br>블로섬α<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_P_EVE_Nikke_02` |
+| 148 | **Planet Diving Suit (6th)**<br>플래닛 다이브 슈트(6th) | **Afi α**<br>아피α<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_08` |
+| 149 | **Blue Monsoon**<br>블루 몬순 | **Diver α**<br>다이버α<br>(wear it on Chest and Waist, if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_43` |
 | 150 | **YoRHa Unofficial Ceremonial Attire**<br>요르하 비공식 의례복 | **Dreamwalker α**<br>고스투라α | Appearance menu → Hunter layered armor → Chest | NieR | `CH_P_EVE_Nier_03` |
 | 151 | **Motivation**<br>모티베이션 | **Harvest α**<br>하베스트α | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_25` |
-| 152 | **Cyber Bunny**<br>사이버 버니 | **Ceremonial α**<br>세레모니얼α<br>(the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_47` |
+| 152 | **Cyber Bunny**<br>사이버 버니 | **Ceremonial α**<br>세레모니얼α<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_47` |
 | 153 | **Santa Dress**<br>산타 드레스 | **Orion α**<br>오리온α | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_Christmas_01` |
 | 156 | **Orca Engineer**<br>오르카 엔지니어 | **Bale Armor α**<br>역경 아머α | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_15_V02` |
 | 157 | **FourSeconds Destroyed Denim**<br>포세컨즈 디스트로이드 데님<br>(no approved-look data: plain automatic build, not checked in game) | **Omega Attire α**<br>오메가 의상α<br>(not checked in game (plain automatic build)) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_51` |
@@ -97,10 +97,10 @@
 | 159 | **Daily Force**<br>데일리 포스 | **Sororal α**<br>퀸α | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_39` |
 | 185 | **Red Passion**<br>레드 패션 | **Guild Knight**<br>길드나이트 | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_26` |
 | 190 | **FourSeconds Everyday Wear**<br>포세컨즈 에브리데이 웨어 | **Noblesse**<br>노블레스 | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_50_TypeB` |
-| 192 | **Cooling Suit**<br>냉각 슈트 | **Cypurrpunk**<br>브레이크캣<br>(the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_P_EVE_Nikke_06` |
+| 192 | **Cooling Suit**<br>냉각 슈트 | **Cypurrpunk**<br>브레이크캣<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_P_EVE_Nikke_06` |
 | 195 | **Missing Link**<br>미싱 링크 | **Cosmoloid**<br>코스모로이드 | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_P_EVE_Nikke_05` |
-| 9041 | **Racer's High**<br>레이서즈 하이 | **Mizutsune β**<br>미츠네β<br>(the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_41` |
-| 9018 | **Daily Mascot**<br>데일리 마스코트 | **Rey Dau γ**<br>레다젤트γ<br>(the ◆ row in the list) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_18` |
+| 9041 | **Racer's High**<br>레이서즈 하이 | **Mizutsune β**<br>미츠네β<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_41` |
+| 9018 | **Daily Mascot**<br>데일리 마스코트 | **Rey Dau γ**<br>레다젤트γ<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_18` |
 | 9034 | **Moutan Peony**<br>모란 | **Nu Udra γ**<br>이그졸스γ | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_34_body` |
 
 ## Uninstall
