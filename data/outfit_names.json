@@ -48,8 +48,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "",
   "default_look": false,
-  "note_ko": "목록의 ◆ 줄",
-  "note_en": "the ◆ row in the list"
+  "note_ko": "같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "147",
@@ -61,8 +61,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "NIKKE",
   "default_look": false,
-  "note_ko": "목록의 ◆ 줄",
-  "note_en": "the ◆ row in the list"
+  "note_ko": "같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "148",
@@ -74,8 +74,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "",
   "default_look": false,
-  "note_ko": "목록의 ◆ 줄",
-  "note_en": "the ◆ row in the list"
+  "note_ko": "같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "149",
@@ -87,8 +87,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "",
   "default_look": false,
-  "note_ko": "몸통과 허리 둘 다 입기, 목록의 ◆ 줄",
-  "note_en": "wear it on Chest and Waist, the ◆ row in the list"
+  "note_ko": "몸통과 허리 둘 다 입기, 같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "wear it on Chest and Waist, if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "150",
@@ -126,8 +126,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "",
   "default_look": false,
-  "note_ko": "목록의 ◆ 줄",
-  "note_en": "the ◆ row in the list"
+  "note_ko": "같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "153",
@@ -230,8 +230,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "NIKKE",
   "default_look": false,
-  "note_ko": "목록의 ◆ 줄",
-  "note_en": "the ◆ row in the list"
+  "note_ko": "같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "195",
@@ -256,8 +256,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "",
   "default_look": false,
-  "note_ko": "목록의 ◆ 줄",
-  "note_en": "the ◆ row in the list"
+  "note_ko": "같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "9018",
@@ -269,8 +269,8 @@
   "where_en": "Appearance menu → Hunter layered armor → Chest",
   "dlc": "",
   "default_look": false,
-  "note_ko": "목록의 ◆ 줄",
-  "note_en": "the ◆ row in the list"
+  "note_ko": "같은 이름이 두 개면 ◆ 표시가 있는 쪽",
+  "note_en": "if the name appears twice, wear the one marked ◆"
  },
  {
   "id": "9034",
