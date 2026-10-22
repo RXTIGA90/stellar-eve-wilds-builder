@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ReeEditorDir Condition="'$(ReeEditorDir)'==''">../ree-content-editor/</ReeEditorDir><OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+    <Reference Include="ContentEditor.App"><HintPath>$(ReeEditorDir)ContentEditor.App.dll</HintPath></Reference>
+    <Reference Include="REE-Lib"><HintPath>$(ReeEditorDir)REE-Lib.dll</HintPath></Reference>
+    <Reference Include="AssimpNetter"><HintPath>$(ReeEditorDir)AssimpNetter.dll</HintPath></Reference>
+    <None Include="$(ReeEditorDir)*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
