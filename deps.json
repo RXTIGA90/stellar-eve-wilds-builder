@@ -1,0 +1,48 @@
+{
+  "_note": "Third-party tools the installer downloads from their official sources (listed in the README; install.ps1 without -Yes asks first). Nothing here is shipped inside the builder.",
+  "blender": {
+    "url": "https://download.blender.org/release/Blender5.2/blender-5.2.2-windows-x64.zip",
+    "sha256": "3849d17a682cba006075aaa3f3597ecb5c9c30ec31035b2e092c53e40679b535",
+    "license": "GPL-2.0-or-later (Blender Foundation)"
+  },
+  "re_mesh_editor": {
+    "url": "https://codeload.github.com/NSACloud/RE-Mesh-Editor/zip/622daa75b41ec622c3444ecb44ef31a651692687",
+    "sha256": "4169aabec3a6bf0f41179477260ee0b1a1c0523c860c8a76b3d088eade66e3c3",
+    "license": "GPL-3.0 (NSACloud)"
+  },
+  "re_chain_editor": {
+    "url": "https://github.com/NSACloud/RE-Chain-Editor/archive/54ed5d41a6360511b4b314c80e9b459032b32688.zip",
+    "sha256": "a97129353d14c7c25ea376af2c178c8e8d2d0a8674808a0a35e83a0d84f3aa46",
+    "license": "GPL-3.0 (NSACloud)"
+  },
+  "dotnet_sdk": {
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/10.0.402/dotnet-sdk-10.0.402-win-x64.zip",
+    "sha512": "ae4fd528cb7e9f6af6aaf7de36715a69f761f183744f1bb3025d19f5a92447090ec561410e46266c1d10a63781ed6f3de771760bc76c876d87daabc367b898cd",
+    "license": "MIT (.NET Foundation)"
+  },
+  "ree_content_editor": {
+    "url": "https://github.com/kagenocookie/REE-Content-Editor/releases/download/v0.7.22/ContentEditor-win64.zip",
+    "sha256": "4de970d31464b47bb09b8770dfba6c9bea81a10e1af3e45159e8b6d7f876d274",
+    "license": "MIT (shadowcookie)",
+    "note": "REE-Lib for MHW pak extraction (motion-convert) and the MHWS_STM file list"
+  },
+  "sb_usmap": {
+    "url": "https://raw.githubusercontent.com/Stellar-Blade-Modding-Team/Stellar-Blade-Modding-Guide/32a60ee838fb219894f30400b969a6460dacc214/4.26.2-0%2B%2B%2BUE4%2BRelease-4.26-SB-v1.4.1.usmap",
+    "sha256": "dd38d38df7238887cef74a84fa9d15299301a5b7ae4535fc17caa5608001df59",
+    "license": "community mappings (Stellar Blade Modding Team)"
+  },
+  "required_mods": {
+    "REFramework": {
+      "url": "https://github.com/praydog/REFramework-nightly/releases/tag/nightly-01432-d052e8fd3fd41d0a1a33394fcf6e6c19be39b1ee",
+      "license": "MIT (praydog)",
+      "note": "the user installs it; the Eve runtime script is a REFramework Lua script"
+    }
+  },
+  "mhw_file_list": {
+    "url": "https://raw.githubusercontent.com/seifhassine/REasy/f3288cb1c79b4a7e749e896a3b0d4cdd1b02b55a/resources/data/lists/MHWS_STM.list",
+    "sha256": "f5947d5bae6c94285635512a692f40c023484ca61b0ec0a8dec1607e13bc6bc4",
+    "save_as": "tools/ree-content-editor/MHWS_STM-upstream.list",
+    "license": "REasy project file list (MIT)",
+    "note": "names of files inside the MHW paks"
+  }
+}

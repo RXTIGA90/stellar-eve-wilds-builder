@@ -1,0 +1,15 @@
+work/
+config.json
+tools/blender/
+tools/ree-content-editor/
+tools/*/bin/
+tools/*/obj/
+*.usmap
+__pycache__/
+install_log.txt
+install_log_err.txt
+StellarEve.exe
+launcher_settings.txt
+tools/launcher/StellarEve.built.cs
+tools/launcher/build.lock
+tools/launcher/unblocked.txt
