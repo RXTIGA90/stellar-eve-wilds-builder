@@ -1,0 +1,78 @@
+{
+ "_why": "S21 Elegance: SB UV01/UV02 fuzz is a grazing-angle sheen (FUZZ_01 CEA9DA, intensity 0.5 / 3.0), baked into the albedo it turned the silver-white pearl dress lavender -> fuzz removed, pearl gloss (lower roughness, slight metal). UV03 stocking (masked, UseDitherAlpha): lace top cut-outs from CH_P_EVE_Nikke_02_04_A alpha (the straight white band). Gem (shading 2, no texture, was dark flat) -> bright silver. Arm = balloon sleeves, Tail = back drapes: SB glass layer shader (GlassColor Out F6D2D5) -> translucent veil keeping the texture. Dress / frills: slight cool brightening (albedo x1.05/1.07/1.15) toward the silver-white of the original.",
+ "specs": {
+  "MI_CH_P_EVE_Nikke_02_UV01": {
+   "fx": {
+    "roughMul": 0.55,
+    "metalSet": 0.18,
+    "albedoMul": "868892"
+   }
+  },
+  "MI_CH_P_EVE_Nikke_02_UV02": {
+   "fx": {
+    "roughMul": 0.6,
+    "metalSet": 0.12,
+    "albedoMul": "868892"
+   }
+  },
+  "MI_CH_P_EVE_Nikke_02_UV03": {
+   "fx": {
+    "stocking": [
+     "CH_P_EVE_Nikke_02_04_Mask01",
+     0,
+     "ECE9E7"
+    ],
+    "tint": "FFFFFF",
+    "alphaClip": [
+     "CH_P_EVE_Nikke_02_04_A",
+     3,
+     0.5
+    ]
+   }
+  },
+  "MI_CH_P_EVE_Nikke_02_Gem": {
+   "kind": "flat",
+   "hex": "EEF0F6",
+   "fx": {
+    "flatRough": 0.08,
+    "metalSet": 0.9
+   }
+  },
+  "MI_CH_P_EVE_Nikke_02_Arm": {
+   "fx": {
+    "veil": {
+     "keepAlbedo": true,
+     "albedoMul": "C4C4D0",
+     "alpha": 0.5,
+     "tint": [
+      0.55,
+      0.55,
+      0.6,
+      1.0
+     ],
+     "alphaAdjust": 0.5,
+     "film": 0.35,
+     "tRough": 0.6
+    }
+   }
+  },
+  "MI_CH_P_EVE_Nikke_02_Tail": {
+   "fx": {
+    "veil": {
+     "keepAlbedo": true,
+     "albedoMul": "D6D2DC",
+     "alpha": 0.55,
+     "tint": [
+      0.7,
+      0.68,
+      0.75,
+      1.0
+     ],
+     "alphaAdjust": 0.5,
+     "film": 0.5,
+     "tRough": 0.5
+    }
+   }
+  }
+ }
+}

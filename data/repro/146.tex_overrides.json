@@ -1,0 +1,3 @@
+{"_why": "S14 War Dress: built from CH_P_EVE_59_TypeB (yellow/gold: texture means R>G>B, e.g. 01_A 0.42/0.32/0.18); original photo = white/grey body, blue-grey stripes = base CH_P_EVE_59 (01_A 0.45/0.44/0.44). Identical primitives -> frozen mesh kept, textures from the base material instances. MI_CH_P_EVE_59_Emissive (flat FFB040 without glow) -> orange emissive (waist ring, garter ends, chest device in the photo).",
+ "variant": {"MI_CH_P_EVE_59_TypeB_01": "MI_CH_P_EVE_59_01", "MI_CH_P_EVE_59_TypeB_02": "MI_CH_P_EVE_59_02", "MI_CH_P_EVE_59_TypeB_03": "MI_CH_P_EVE_59_03"},
+ "specs": {"MI_CH_P_EVE_59_Emissive": {"kind": "flat", "hex": "FFB040", "fx": {"emissive": {"hex": "FF8A20", "power": 6}, "flatRough": 0.3}}}}

@@ -1,0 +1,2 @@
+{"_why": "S02 Planet Dive 7th: the existing hand-tuned preset 09 (green vinyl via DetailMask, veil cape, glow) is kept; only the vinyl panels are made glossier / more metallic for the strong green-teal reflection of the original (EVE_VINYL_ROUGH 0.05 -> 0.03, EVE_VINYL_METAL 0.7 -> 0.85, EVE_GREEN_GAIN 1.0 -> 1.12). The white-filled ring centres are NOT changed: whether the white comes from CH_P_EVE_09_Map03_E or the mask could not be confirmed offline.",
+ "env": {"EVE_VINYL_ROUGH": "0.03", "EVE_VINYL_METAL": "0.85", "EVE_GREEN_GAIN": "1.12"}}

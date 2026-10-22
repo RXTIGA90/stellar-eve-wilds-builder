@@ -1,0 +1,5 @@
+{"_why": "S13 Motivation: the three orange lights (collar centre, two above the chest) were dark discs. SB MI_CH_P_EVE_25_Upper: Emissive = CH_P_EVE_25_Upper_E, EmissivePower 10; Lower: CH_P_EVE_25_Lower_E, EmissiveColor FFFF00, power 10. The pipeline never built emissive -> now the *_E maps' own colours (normalised) as emissive. Bow, skirt, knee-highs untouched.",
+ "specs": {
+  "MI_CH_P_EVE_25_Upper": {"fxAdd": {"emissive": {"tex": "CH_P_EVE_25_Upper_E", "rgb": true, "hex": "FFFFFF", "power": 8}}},
+  "MI_CH_P_EVE_25_Lower": {"fxAdd": {"emissive": {"tex": "CH_P_EVE_25_Lower_E", "rgb": true, "hex": "FFFFFF", "power": 8}}}
+ }}

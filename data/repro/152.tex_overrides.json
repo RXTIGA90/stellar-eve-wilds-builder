@@ -1,0 +1,15 @@
+{
+ "_why": "S15 Cyber Bunny: SB CH_P_EVE_47_BB has Use_ML_Stocking on, but its stocking mask is bound as 'MaskTexture' = CH_P_EVE_47_BB_STKMask, not 'MASK_Stocking' -> make_eve_auto.mat_spec() found no mask and built bare skin; only the diamond net lines baked in CH_P_EVE_47_BB_A remained ('net lines on bare legs'). Now the mask is used: thin dark sheer base (tint 393431 family, 40 % skin through, skin shading and the baked net lines kept), net size / UVs untouched. Mask channel: CH_P_EVE_47_BB_STKMask R is 1.0 everywhere (first try darkened chest and arms), G/B = 59 % = the legs -> G.",
+ "specs": {
+  "CH_P_EVE_47_BB": {
+   "stk": "CH_P_EVE_47_BB_STKMask",
+   "fx": {
+    "stkSheer": 0.4,
+    "stkKeepShade": true,
+    "stkColor": "0E0B0A",
+    "stkRough": 0.5,
+    "stkCh": 1
+   }
+  }
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "_why": "S19 Santa: SB BlendMode/shader data (scripts/claude_matdump.py S19). _03 sleeves = translucent (BlendMode 2, no base map) -> dark veil; _02 = shell fur FurColor FDF3E6 (built with an unrelated brown texture) -> plain white rough cloth (shell fur not reproducible); Decal + _01 = masked (BlendMode 1) -> alpha clip from base alpha; HR_15_Emissive1 = 'Eye Core HDR Tint' FFFF00 glow (was dark flat) -> orange-yellow emissive; Skin MASK_Stocking (switch absent in SB json, mask in R) -> milky white sheer stocking.",
+ "specs": {
+  "MI_CH_P_EVE_Christmas_01_03": {
+   "kind": "flat",
+   "hex": "1E1E22",
+   "fx": {
+    "veil": {
+     "hex": "1E1E22",
+     "alpha": 0.45,
+     "tint": [
+      0.1,
+      0.1,
+      0.11,
+      1.0
+     ],
+     "alphaAdjust": 0.45,
+     "film": 0.0,
+     "tRough": 1.0
+    }
+   }
+  },
+  "MI_CH_P_EVE_Christmas_01_02": {
+   "kind": "flat",
+   "hex": "F2EEE8",
+   "fx": {
+    "flatRough": 0.95
+   }
+  },
+  "MI_CH_P_EVE_Christmas_01_Decal": {
+   "fxAdd": {
+    "alphaClip": [
+     "CH_P_EVE_Christmas_01_Decal_A",
+     3,
+     0.5
+    ]
+   }
+  },
+  "MI_CH_P_EVE_Christmas_01_01": {
+   "fxAdd": {
+    "alphaClip": [
+     "CH_P_EVE_Christmas_01_01_A",
+     3,
+     0.5
+    ]
+   }
+  },
+  "MI_EVE_HR_15_Emissive1": {
+   "kind": "flat",
+   "hex": "FFC83A",
+   "fx": {
+    "emissive": {
+     "hex": "FFB020",
+     "power": 6
+    },
+    "flatRough": 0.3
+   }
+  },
+  "MI_CH_P_EVE_Christmas_01_Skin": {
+   "stk": "CH_P_EVE_Christmas_01_Skin_M",
+   "fx": {
+    "stkColor": "F0EEEC",
+    "stkSheer": 0.45,
+    "stkRough": 0.5,
+    "stkKeepShade": true,
+    "stkCh": 0
+   },
+   "orm": "CH_P_EVE_BB_V03_TypeA_ORSS"
+  }
+ },
+ "_why_p3": "P3 (2026-10-21): Christmas_01_Skin has no ORSS of its own; parent MI_CH_P_EVE_BB_V03_TypeB gives V03_TypeA_ORSS (the V02_F1_ORSS fallback is a different UV layout, d5 overlay). Everything else = S19_v1."
+}

@@ -1,0 +1,102 @@
+{
+ "_why": "S20 YoRHa ceremonial: SB masked (BlendMode 1) lace_01 / Decal / _01 and translucent lace_03 (with alpha) -> alpha clip from their base alpha (neck lace, hem lace, decals were opaque black); translucent lace_02 / lace_04 (no textures, HDR glass shader) -> dark veil (skirt / sheer panels were opaque); _03 Use_ML_Stocking with MaterialLayerMask B (no tint in SB json, pipeline skipped it) -> near-black sheer. lace_03 (translucent with texture) -> veil with texture alpha as opacity, darkened.",
+ "env": {
+  "EVE_STK_SHEER": "0.36"
+ },
+ "specs": {
+  "MI_CH_P_EVE_Nier_03_lace_01": {
+   "fxAdd": {
+    "alphaClip": [
+     "CH_P_EVE_Nier_03_lace_01_A",
+     3,
+     0.5
+    ]
+   }
+  },
+  "MI_CH_P_EVE_Nier_03_lace_03": {
+   "fx": {
+    "veil": {
+     "keepAlbedo": true,
+     "albedoMul": "404044",
+     "alpha": 0.3,
+     "alphaTex": [
+      "CH_P_EVE_Nier_03_lace_03_A",
+      3,
+      0.65
+     ],
+     "tint": [
+      0.05,
+      0.05,
+      0.055,
+      1.0
+     ],
+     "alphaAdjust": 0.5,
+     "tRough": 0.8
+    }
+   }
+  },
+  "MI_CH_P_EVE_Nier_03_Decal": {
+   "fxAdd": {
+    "alphaClip": [
+     "CH_P_EVE_Nier_03_Decal_A",
+     3,
+     0.5
+    ]
+   }
+  },
+  "MI_CH_P_EVE_Nier_03_01": {
+   "fxAdd": {
+    "alphaClip": [
+     "CH_P_EVE_Nier_03_01_A",
+     3,
+     0.5
+    ]
+   }
+  },
+  "MI_CH_P_EVE_Nier_03_lace_02": {
+   "kind": "flat",
+   "hex": "141416",
+   "fx": {
+    "veil": {
+     "hex": "141416",
+     "alpha": 0.62,
+     "tint": [
+      0.06,
+      0.06,
+      0.065,
+      1.0
+     ],
+     "alphaAdjust": 0.5,
+     "tRough": 0.8
+    }
+   }
+  },
+  "MI_CH_P_EVE_Nier_03_lace_04_Inst": {
+   "kind": "flat",
+   "hex": "141416",
+   "fx": {
+    "veil": {
+     "hex": "141416",
+     "alpha": 0.5,
+     "tint": [
+      0.06,
+      0.06,
+      0.065,
+      1.0
+     ],
+     "alphaAdjust": 0.5,
+     "tRough": 0.8
+    }
+   }
+  },
+  "MI_CH_P_EVE_Nier_03_03": {
+   "fxAdd": {
+    "stocking": [
+     "CH_P_EVE_Nier_03_03_RGB",
+     2,
+     "0E0D0F"
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,9 @@
+{
+ "_why": "P3 (2026-10-21) source inheritance: MI_CH_P_EVE_Nier_02_Body only overrides BaseNormal (TypeA_N); parent MI_CH_P_EVE_BB_V03_TypeB gives BaseColor TypeB_A and ORSS Mask V03_TypeA_ORSS. The old spec guessed TypeA_A from the normal name and fell back to V02_F1_ORSS, whose UV layout does not match this body (reports/common_skin_review_v1/d5).",
+ "specs": {
+  "MI_CH_P_EVE_Nier_02_Body": {
+   "base": "CH_P_EVE_BB_V03_TypeB_A",
+   "orm": "CH_P_EVE_BB_V03_TypeA_ORSS"
+  }
+ }
+}

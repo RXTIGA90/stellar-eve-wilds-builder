@@ -1,0 +1,8 @@
+{"_why": "S05 Planet Dive 6th: original photo = red/black suit with orange glow = SB colour variant Type_B_OrangeRed (material jsons MI_CH_P_EVE_08_*_Type_B_OrangeRed in work/auto-08-suit; the build used the default blue/white set). Suit / Acc switched to that variant's base, ORM and normal textures; emissive from SB's own masks (Suit: CH_P_EVE_08_Body_E, EmissiveColor 891F00; Acc: CH_P_EVE_08_back_Mask01, glow FFF800 core / 3C000A edge) in orange; Vinyl half sleeves: SB BlendMode 2 glass (GlassColor 000000) built as opaque dark -> dark translucent veil.",
+ "specs": {
+  "MI_CH_P_EVE_08_Suit": {"base": "MI_CH_NPC_Lilly_01_Lower_2_A_Type_B_OrangeRed", "orm": "MI_CH_NPC_Lilly_01_Lower_4_ORM_Type_B_OrangeRed", "nrm": "MI_CH_NPC_Lilly_01_Lower_2_Type_B",
+                          "fx": {"emissive": {"tex": "CH_P_EVE_08_Body_E", "ch": 0, "hex": "FF6A1A", "power": 8}}},
+  "MI_CH_P_EVE_08_Acc": {"base": "MI_CH_NPC_Lilly_01_Skin_2_A_Type_B_OrangeRed",
+                         "fx": {"emissive": {"tex": "CH_P_EVE_08_back_Mask01", "ch": 0, "hex": "FF8A20", "power": 8}}},
+  "MI_EVE_Cos_08_Vinyl": {"kind": "flat", "hex": "1C1416", "fx": {"veil": {"hex": "1C1416", "alpha": 0.32, "tint": [0.08, 0.05, 0.055, 1.0], "alphaAdjust": 0.4, "tRough": 0.3}}}
+ }}

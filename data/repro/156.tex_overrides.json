@@ -1,0 +1,24 @@
+{
+ "_why": "S16 Orca Engineer: (1) stocking = SB ML_Stocking on CH_P_EVE_15_BB (MASK CH_P_EVE_15_StockingMask, tint 393431, StockingIntensity 1.3) baked as flat 30 % sheer over an evened skin tone -> read as opaque leggings; now 45 % with the skin's own light / dark kept and a smoother finish (the original shows highlights on the shins). (2) glow: MI_EVE_Cos_15_Upper (jacket, gloves, boots, neck device - material map ids_idle@0_front.png) lists Emissive = EVE_COS_15_Upper_Mask01_Type_B, EmissivePower 10; the generic pipeline never builds emissive -> orange from the mask's R channel (4.8 % coverage, small parts). Channel choice = inferred from coverage, check the v1 render. (3) jacket: SB Upper has no metal parameters; base roughness kept. Channel fix after review: R of the mask = the red suspender straps (first try lit them); G (0.3 %) = small parts -> G.",
+ "specs": {
+  "CH_P_EVE_15_BB": {
+   "fx": {
+    "stkSheer": 0.45,
+    "stkKeepShade": true,
+    "stkColor": "16110E",
+    "stkRough": 0.45
+   }
+  },
+  "MI_EVE_Cos_15_Upper": {
+   "fxAdd": {
+    "emissive": {
+     "tex": "EVE_COS_15_Upper_Mask01_Type_B",
+     "ch": 1,
+     "thr": 0.2,
+     "hex": "FF6A10",
+     "power": 8
+    }
+   }
+  }
+ }
+}
