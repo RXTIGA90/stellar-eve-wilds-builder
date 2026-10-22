@@ -1,0 +1,1 @@
+local patch: console_toggle skipped in background (2026-10-16)
