@@ -33,8 +33,8 @@
 - **Stellar Blade** and **Monster Hunter Wilds** on Steam (any drive)
 - **REFramework**: put `dinput8.dll` from `REFramework.zip` ([REFramework-nightly releases](https://github.com/praydog/REFramework-nightly/releases))
   next to `MonsterHunterWilds.exe`.
-  - **Turn on REFramework's Loose File Loader.** Without it only Eve's face changes and the outfit stays the normal armor (the lower body looks empty).
-    How: with the game closed, open `re2_fw_config.txt` in the Monster Hunter Wilds folder and set `LooseFileLoader_Enabled=true` (add the line if missing).
+  - **REFramework's Loose File Loader has to be on.** Without it only Eve's face changes and the outfit stays the normal armor (the lower body looks empty).
+    The installer turns it on during install (`re2_fw_config.txt`; the file as it was is kept in `work\game-backup\`). To do it by hand: with the game closed, open `re2_fw_config.txt` in the Monster Hunter Wilds folder and set `LooseFileLoader_Enabled=true` (add the line if missing).
     Or in game press **Insert** → REFramework menu → **LooseFileLoader → Enable**, close the menu so it is saved, then restart the game.
 - About 25 GB free space and internet (the needed tools are downloaded automatically)
 
@@ -135,7 +135,7 @@ Offline use only. Never share the built files (`work\`) or the installed files.
 ## Security and privacy
 - **Nothing is sent anywhere.** The internet is used only to download the tools listed in `deps.json` from their official sources; every download is checked with SHA-256/512 and the installer stops on a mismatch. (Building the .NET tools also lets dotnet fetch version-pinned packages from nuget.org.)
 - **No ready-made executables.** `StellarEve.exe` and the two .NET tools (`tools\sb-extract`, `tools\motion-convert`) are built on your PC from the source in this folder.
-- What it changes: this folder, the Monster Hunter Wilds folder (added files are listed in `work\game-backup\added.txt`, replaced originals are backed up), and the desktop / Start menu shortcuts (when ticked). The registry is only **read** to find Steam; startup programs, scheduled tasks, firewall and antivirus settings are never touched.
+- What it changes: this folder, the Monster Hunter Wilds folder (added files are listed in `work\game-backup\added.txt`, replaced originals are backed up), the desktop / Start menu shortcuts (when ticked), and the `LooseFileLoader_Enabled` line in REFramework's config (only turned on; the file is backed up first). The registry is only **read** to find Steam; startup programs, scheduled tasks, firewall and antivirus settings are never touched.
 - The in-game script (`stellar_eve_outfit_bones.lua`) only reads and writes JSON files in REFramework's `reframework\data\stellar-eve\`.
 - Note: CUE4Parse (reads the Stellar Blade files) pins SixLabors.ImageSharp 3.1.12, so the build shows a known-vulnerability warning for it. It only reads the Stellar Blade textures on your own PC, never images from the internet.
 

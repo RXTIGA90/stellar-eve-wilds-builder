@@ -100,6 +100,26 @@ function Expand-Into($zip, $dest, [switch]$StripTop) {
     Remove-Item $tmp -Recurse -Force
 }
 
+function Enable-LooseFileLoader {
+    # the outfits replace files that are inside the game's paks: the game reads those loose files only with REFramework's
+    # Loose File Loader on (without it only Eve's face - a new file - shows). Turn it on in re2_fw_config.txt; the file as
+    # it was is kept once in work\game-backup\. Uninstall leaves it on (other mods may need it).
+    $cfg = Join-Path $MhwDir "re2_fw_config.txt"
+    $line = "LooseFileLoader_Enabled=true"
+    $lines = @()
+    if (Test-Path -LiteralPath $cfg) {
+        $lines = @(Get-Content -LiteralPath $cfg)
+        if ($lines | Where-Object { $_ -match '^\s*LooseFileLoader_Enabled\s*=\s*true\s*$' }) { Say "REFramework Loose File Loader: already on"; return }
+        $bk = Join-Path $WorkDir "game-backup\re2_fw_config.txt.orig"
+        if (-not (Test-Path -LiteralPath $bk)) { New-Item -ItemType Directory -Force (Split-Path $bk) | Out-Null; Copy-Item -LiteralPath $cfg $bk }
+    }
+    $found = $false
+    $lines = @($lines | ForEach-Object { if ($_ -match '^\s*LooseFileLoader_Enabled\s*=') { $found = $true; $line } else { $_ } })
+    if (-not $found) { $lines += $line }
+    [IO.File]::WriteAllLines($cfg, [string[]]$lines, (New-Object System.Text.UTF8Encoding $false))
+    Say "REFramework Loose File Loader: turned on ($cfg)"
+}
+
 function Get-OutfitMenu {
     $queue = Get-Content (Join-Path $Root "data\night_queue.json") -Raw -Encoding UTF8 | ConvertFrom-Json
     $menu = @(@{ row = "27"; name = "Ocean Maid / 오션 메이드"; armor = "default look: innerwear beta type 2 / 기본 외형: 이너웨어 β 타입 2"; dlc = "" },
@@ -231,5 +251,6 @@ if ($LASTEXITCODE) { throw "build failed (logs in $WorkDir)" }
 if ($NoInstall) { Say "built (not installed): $WorkDir"; exit 0 }
 & $PyExe (Join-Path $Root "scripts\install_game.py") install
 if ($LASTEXITCODE) { throw "install failed" }
+Enable-LooseFileLoader
 Say "done. Start the game. To remove: Stellar Eve > Uninstall, or uninstall.bat"
 

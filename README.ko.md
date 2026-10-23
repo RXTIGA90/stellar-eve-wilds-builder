@@ -33,8 +33,8 @@
 - Steam판 **스텔라 블레이드**, **몬스터 헌터 와일즈** (설치 드라이브는 상관없음)
 - **REFramework**: [REFramework-nightly 릴리스](https://github.com/praydog/REFramework-nightly/releases)의 `REFramework.zip` 안 `dinput8.dll`을
   `MonsterHunterWilds.exe`가 있는 폴더에 넣습니다.
-  - **REFramework의 Loose File Loader를 꼭 켜세요.** 꺼져 있으면 얼굴만 이브로 바뀌고 옷은 원래 갑옷으로 나옵니다(하반신이 비어 보임).
-    방법: 게임을 끈 상태에서 몬헌 폴더의 `re2_fw_config.txt`를 메모장으로 열고 `LooseFileLoader_Enabled=true`로 저장(줄이 없으면 추가).
+  - **REFramework의 Loose File Loader가 켜져 있어야 합니다.** 꺼져 있으면 얼굴만 이브로 바뀌고 옷은 원래 갑옷으로 나옵니다(하반신이 비어 보임).
+    설치기가 설치할 때 자동으로 켭니다(`re2_fw_config.txt`, 원래 파일은 `work\game-backup\`에 보관). 직접 켜려면: 게임을 끈 상태에서 몬헌 폴더의 `re2_fw_config.txt`를 메모장으로 열고 `LooseFileLoader_Enabled=true`로 저장(줄이 없으면 추가).
     또는 게임에서 **Insert** → REFramework 메뉴 → **LooseFileLoader → Enable** 체크 → 메뉴를 닫아 저장한 뒤 게임을 다시 켭니다.
 - 빈 공간 약 25GB, 인터넷(필요한 도구를 자동으로 받음)
 
@@ -131,7 +131,7 @@
 ## 보안·개인정보
 - **아무 정보도 밖으로 보내지 않습니다.** 인터넷은 `deps.json`에 적힌 도구를 공식 배포처에서 받을 때만 씁니다. 받은 파일은 모두 SHA-256/512로 확인하고, 다르면 멈춥니다. (그 밖에 .NET 도구를 빌드할 때 dotnet이 nuget.org에서 버전이 고정된 패키지를 받습니다.)
 - **미리 만든 실행 파일이 없습니다.** `StellarEve.exe`와 두 .NET 도구(`tools\sb-extract`, `tools\motion-convert`)는 이 폴더의 소스로 여러분 PC에서 빌드됩니다.
-- 바꾸는 곳: 이 폴더, 몬헌 폴더(넣은 파일은 `work\game-backup\added.txt`에 기록, 덮어쓴 원본은 백업), 바탕화면·시작 메뉴 바로가기(체크했을 때). 레지스트리는 Steam 위치를 **읽기만** 하고, 시작 프로그램·예약 작업·방화벽·백신 설정은 건드리지 않습니다.
+- 바꾸는 곳: 이 폴더, 몬헌 폴더(넣은 파일은 `work\game-backup\added.txt`에 기록, 덮어쓴 원본은 백업), 바탕화면·시작 메뉴 바로가기(체크했을 때), REFramework 설정 파일의 `LooseFileLoader_Enabled` 한 줄(켜기만 함, 원래 파일은 백업). 레지스트리는 Steam 위치를 **읽기만** 하고, 시작 프로그램·예약 작업·방화벽·백신 설정은 건드리지 않습니다.
 - 게임 안 스크립트(`stellar_eve_outfit_bones.lua`)는 REFramework의 `reframework\data\stellar-eve\` 안 JSON 파일만 읽고 씁니다.
 - 참고: Stellar Blade 파일을 읽는 CUE4Parse가 SixLabors.ImageSharp 3.1.12를 고정해서 쓰며, 빌드할 때 이 버전의 알려진 취약점 경고가 나옵니다. 여러분 PC의 스텔라 블레이드 텍스처만 읽고 인터넷 이미지는 다루지 않습니다.
 
