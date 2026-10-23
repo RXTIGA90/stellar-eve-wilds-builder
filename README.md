@@ -33,6 +33,9 @@
 - **Stellar Blade** and **Monster Hunter Wilds** on Steam (any drive)
 - **REFramework**: put `dinput8.dll` from `REFramework.zip` ([REFramework-nightly releases](https://github.com/praydog/REFramework-nightly/releases))
   next to `MonsterHunterWilds.exe`.
+  - **Turn on REFramework's Loose File Loader.** Without it only Eve's face changes and the outfit stays the normal armor (the lower body looks empty).
+    How: with the game closed, open `re2_fw_config.txt` in the Monster Hunter Wilds folder and set `LooseFileLoader_Enabled=true` (add the line if missing).
+    Or in game press **Insert** → REFramework menu → **LooseFileLoader → Enable**, close the menu so it is saved, then restart the game.
 - About 25 GB free space and internet (the needed tools are downloaded automatically)
 
 ## Install
@@ -123,6 +126,7 @@ What uninstall does:
 | `... is not in your Stellar Blade (DLC not installed?): skipped` | that DLC is not installed, so only that outfit was skipped. Install the DLC, run `install.bat` again and pick that number |
 | `Stellar Blade not found` / `Monster Hunter Wilds not found` | give the folders: `install.bat -SbPaks "...\StellarBlade\SB\Content\Paks" -MhwDir "...\MonsterHunterWilds"` |
 | `REFramework is not installed` | install REFramework (see Requirements) |
+| In game only the face is Eve, the outfit is the normal armor (lower body looks empty) | REFramework's Loose File Loader is off: turn it on as in Requirements and restart the game |
 | `Monster Hunter Wilds is running` | close the game and run again |
 | `build failed` | send the logs in `work\logs\` |
 

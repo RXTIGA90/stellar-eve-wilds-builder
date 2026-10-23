@@ -33,6 +33,9 @@
 - Steam판 **스텔라 블레이드**, **몬스터 헌터 와일즈** (설치 드라이브는 상관없음)
 - **REFramework**: [REFramework-nightly 릴리스](https://github.com/praydog/REFramework-nightly/releases)의 `REFramework.zip` 안 `dinput8.dll`을
   `MonsterHunterWilds.exe`가 있는 폴더에 넣습니다.
+  - **REFramework의 Loose File Loader를 꼭 켜세요.** 꺼져 있으면 얼굴만 이브로 바뀌고 옷은 원래 갑옷으로 나옵니다(하반신이 비어 보임).
+    방법: 게임을 끈 상태에서 몬헌 폴더의 `re2_fw_config.txt`를 메모장으로 열고 `LooseFileLoader_Enabled=true`로 저장(줄이 없으면 추가).
+    또는 게임에서 **Insert** → REFramework 메뉴 → **LooseFileLoader → Enable** 체크 → 메뉴를 닫아 저장한 뒤 게임을 다시 켭니다.
 - 빈 공간 약 25GB, 인터넷(필요한 도구를 자동으로 받음)
 
 ## 설치
@@ -119,6 +122,7 @@
 | `... is not in your Stellar Blade (DLC not installed?): skipped` | 그 DLC가 없어서 그 의상만 건너뜀. DLC를 설치한 뒤 `install.bat`을 다시 실행하고 그 번호를 고르면 추가됩니다 |
 | `Stellar Blade not found` / `Monster Hunter Wilds not found` | 폴더를 직접 지정: `install.bat -SbPaks "...\StellarBlade\SB\Content\Paks" -MhwDir "...\MonsterHunterWilds"` |
 | `REFramework is not installed` | 위 "필요한 것"의 REFramework를 넣으세요 |
+| 게임에서 얼굴만 이브이고 옷은 원래 갑옷(하반신이 비어 보임) | REFramework의 Loose File Loader가 꺼져 있습니다. 위 "필요한 것"대로 켜고 게임을 다시 켜세요 |
 | `Monster Hunter Wilds is running` | 게임을 끄고 다시 실행 |
 | `build failed` | 폴더의 `work\logs\` 로그를 보내 주세요 |
 
