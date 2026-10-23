@@ -82,6 +82,9 @@ static class App {
         {"ck_ref_ok", new[] {"REFramework: 설치됨 (dinput8.dll)", "REFramework: installed (dinput8.dll)"}},
         {"ck_ref_no", new[] {"REFramework가 없습니다. 없으면 게임에서 이브 얼굴·체형이 적용되지 않습니다. [받는 곳]에서 REFramework.zip을 받아 dinput8.dll을 몬헌 폴더에 넣으세요.",
                              "REFramework is missing: without it Eve's face and body do not apply in game. [Download page]: get REFramework.zip and put dinput8.dll in the Monster Hunter Wilds folder."}},
+        {"ck_lfl_on", new[] {"REFramework Loose File Loader: 켜짐", "REFramework Loose File Loader: on"}},
+        {"ck_lfl_off", new[] {"REFramework Loose File Loader: 꺼짐 → 설치할 때 자동으로 켭니다 (꺼져 있으면 얼굴만 바뀌고 옷은 원래 갑옷으로 나옴)",
+                              "REFramework Loose File Loader: off → turned on during install (when off, only the face changes and the outfit stays the normal armor)"}},
         {"ck_sb_ok", new[] {"스텔라 블레이드: {0}", "Stellar Blade: {0}"}},
         {"ck_sb_no", new[] {"스텔라 블레이드를 찾지 못했습니다. 이브 파일은 스텔라 블레이드에서 가져오므로 꼭 필요합니다. 설치했다면 [폴더 선택]으로 StellarBlade 폴더를 고르세요.",
                             "Stellar Blade not found. Eve's files come from it, so it is required. If it is installed, press [Choose folder] and pick the StellarBlade folder."}},
@@ -309,12 +312,19 @@ static class Checks {
         for (var d = picked; !string.IsNullOrEmpty(d); d = Path.GetDirectoryName(d)) if (Has(d, must)) return d;
         return "";
     }
+    static bool LooseFilesOn() {
+        try {
+            var cfg = Path.Combine(MhwDir, "re2_fw_config.txt");
+            return File.Exists(cfg) && File.ReadAllLines(cfg).Any(l => Regex.IsMatch(l, @"^\s*LooseFileLoader_Enabled\s*=\s*true\s*$"));
+        } catch { return false; }
+    }
     public static List<Check> Run() {
         MhwDir = Has(App.MhwPick, MhwMust) ? App.MhwPick : FindSteam("MonsterHunterWilds", MhwMust);
         SbDir = Has(App.SbPick, SbMust) ? App.SbPick : FindSteam("StellarBlade", SbMust);
         var r = new List<Check>();
         r.Add(MhwDir != "" ? new Check { Text = string.Format(App.T("ck_mhw_ok"), MhwDir) } : new Check { Level = 2, Text = App.T("ck_mhw_no"), Action = "mhw" });
         if (MhwDir != "") r.Add(Has(MhwDir, "dinput8.dll") ? new Check { Text = App.T("ck_ref_ok") } : new Check { Level = 1, Text = App.T("ck_ref_no"), Action = "ref" });
+        if (MhwDir != "") r.Add(new Check { Text = App.T(LooseFilesOn() ? "ck_lfl_on" : "ck_lfl_off") });   // install.ps1 turns it on
         r.Add(SbDir != "" ? new Check { Text = string.Format(App.T("ck_sb_ok"), SbDir) } : new Check { Level = 2, Text = App.T("ck_sb_no"), Action = "sb" });
         try {
             // first run: tools (~3 GB) + extracted game files + builds; later runs reuse them
