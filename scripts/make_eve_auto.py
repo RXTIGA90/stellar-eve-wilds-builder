@@ -30,6 +30,7 @@ SCR = SCRIPTS
 ENV = dict(os.environ, BLENDER_USER_SCRIPTS=EP.USER_SCRIPTS, PYTHONIOENCODING='utf-8',
            MHW_DIR=EP.GAME, SB_PAKS=EP.SB_PAKS, WORK_DIR=P)
 LOG = []
+SB_SHADERS = False   # set for another SB character's row (q['character']): SB hair / eye / skin tint read from her materials
 
 
 def log(*a):
@@ -137,6 +138,16 @@ def mat_spec(suit, mat, png):
     if swi.get('Use_ML_Stocking') and t.get('MaterialLayerMask') and col.get('ML_STK_StockingTint'):
         fx['stocking'] = [t['MaterialLayerMask'], chn(col.get('ML_Stocking_CH', 'FF0000')), col['ML_STK_StockingTint']]
     if col.get('Base Color Tint'): fx['tint'] = col['Base Color Tint']
+    if SB_SHADERS:   # another SB character (Scarlet): her hair cards (SB hair shader) and eyes (iris texture) as in SB
+        if t.get('HairTexture') and col.get('RootColor') and col.get('TipColor'): fx['sbHair'] = [t['HairTexture'], col['RootColor'], col['TipColor']]
+        if t.get('IrisColor'): fx['sbEye'] = t['IrisColor']
+        if skin and col.get('BaseTint'): fx['skinTint'] = col['BaseTint']
+        # SB lights her armour with an image-based reflection (HDR_Intensity 0.5 / 2.77) that Wilds does not have; the same
+        # ORM looked dull in game (user 10-25 "metal gloss differs") -> glossier and more metallic, more where SB's HDR is stronger
+        if not skin and sc.get('HDR_Intensity') and not fx.get('sbHair'):
+            h = float(sc['HDR_Intensity'])
+            fx['metalMul'] = 1.5 if h > 1 else 1.3
+            if not (fx.get('fuzz') or fx.get('stocking')): fx['roughMul'] = 0.6 if h > 1 else 0.75   # cloth / stockings keep their sheen
     if swi.get('UsePatternTiling') and col.get('Pattern01_Tint') and t.get('Mask'):   # tiled fabric layer tinted over the mask (Holiday Rabbit)
         fx['pattern'] = [t['Mask'], 0, col['Pattern01_Tint'], float(sc.get('Pattern01_BasecolorIntensity', 0.8))]
     return [mat, kind, base, orm, nrm, stk, hexc or '262626', fx]   # unknown shader colour: dark (glass / vinyl / lace were black in SB)
@@ -169,6 +180,8 @@ def main():
     folder, files = resolve(q['path'])
     a_, b_, c_ = folder.split('/'); opre = f'{a_}_{b_}_{c_}'
     log('folder', folder, len(files), 'files')
+    global SB_SHADERS
+    SB_SHADERS = bool(q.get('character'))
     W = P + f'wilds-{tag}/'
     parts = {}
     for f in files:
@@ -273,6 +286,14 @@ def main():
                  # 10-20 (user, side by side with SB): face across the back, narrower tip, less sticking out behind
                  'hangTwist': 0.75, 'hangTaper': 0.5, 'hangCurlTop': 60, 'hangCurl': 240, 'hangPleats': 3, 'hangPleatAmp': 0.012, 'hangBack': 0.0, 'hangBend': 0.1, 'hangFar': 0.06,
                  'chainSkip': ['ClothRibbon', 'RibbonC']}}
+    # another Stellar Blade character (10-25, Scarlet CH_M_NA_961, user: "not an Eve outfit -- fit it to her, mind the head
+    # and the whole body proportions"): her mesh carries her own body, clothes and hair -> keep her shape (no Eve bust
+    # growth / cleavage fill / limb girth normalising to Eve), no Eve ponytail or hairpin, hair strands as physics chains;
+    # her face is built from her own facial mesh below and swapped in by the Lua (outfits_auto.json "faces")
+    CH = q.get('character')
+    if CH:
+        oc.update(ownHair=True, hairChains=True, bust='1.0', cleavageFill='0', limbNormalize=False)
+        oc.update(q.get('ovr', {}))
     ovr = dict(OVR.get(row, {}))
     fxo = ovr.pop('fxOverride', {})
     for sp in specs:
@@ -280,6 +301,9 @@ def main():
     ovr.pop('specHex', None)
     for sp in specs:
         if sp[0] in fxo: sp[7] = fxo[sp[0]]
+    # queue "fxAdd" {material: {fx key: value}}: merged into that material's fx (Scarlet gloss B, user 10-25 from previews)
+    for sp in specs:
+        if sp[0] in q.get('fxAdd', {}): sp[7] = dict(sp[7] or {}, **q['fxAdd'][sp[0]])
     eve_repro.specs(str(row), specs, lambda m: mat_spec(suit, m, png), log)   # approved common-skin look (data/repro)
     oc.update(ovr)
     eve_repro.outfit(str(row), oc, log)
@@ -306,6 +330,8 @@ def main():
     env = dict(ENV, **PRESETS.get(code, {}))
     env = dict(env, EVE_SKIN_REF='0.717,0.512,0.476')   # Diver (Blue Monsoon, row 149) skin tone for every outfit (user 10-19)
     env = dict(env, **eve_repro.tex_env(str(row)))
+    if CH:   # her own skin colour: SB's skin tint on her own texture, no gain toward Eve's skin tone
+        env.pop('EVE_SKIN_REF', None); env['EVE_SKIN_PROFILE'] = 'common_v1'
     env = dict(env, EVE_OUTFIT='auto', EVE_TEX_JSON=B + 'tex.json', EVE_MAT_PREFIX=pfx, EVE_TEX_REL=f'stellar/{tag}/tex', EVE_HAIR_STRANDS='1')
     allkeys = [f'{pfx}{i:02d}' for i in range(len(mats) + 2)]
     for n in sorted(split):
@@ -318,6 +344,34 @@ def main():
         r = run([BL, '--background', TPL, '--python', SCRIPTS + 'build_eve_default_tex.py', '--', srcs, ST + 'natives/stm', B + f'tex_report{n}.json'], B + f'tex{n}.log', env=e)
         log('mdf', n, r.returncode, 'tracebacks', open(B + f'tex{n}.log', encoding='utf-8').read().count('Traceback'), 'used', used)
     eve_repro.textures(str(row), body_mesh, ST + f'natives/stm/stellar/{tag}/tex', B, log, keep=allkeys[len(mats):])   # hair, sword
+    face_rel = None
+    if CH and q.get('face'):
+        # her head as the Wilds face mesh (build_eve_face.py with her facial glb / materials), textures + mdf from her own
+        # material jsons like the body (EVE_OUTFIT=auto); the Lua swaps Player_Face to it while this outfit is worn
+        fq = q['face']; fglb = None
+        for root_, _, fs_ in os.walk(suit):
+            if fq['glb'] + '.glb' in fs_: fglb = os.path.join(root_, fq['glb'] + '.glb').replace('\\', '/'); break
+        if not fglb: raise SystemExit(f'no face glb {fq["glb"]}')
+        fpfx = pfx[:2] + 'f'; face_rel = f'stellar/{tag}/face/{tag}_face'
+        e = dict(ENV, EVE_FACE_GLB=fglb, EVE_FACE_HAIR='', EVE_FACE_KEEP=','.join(fq['keep']), EVE_FACE_SKIN=fq['skin'],
+                 EVE_FACE_EYE=fq['eye'], EVE_FACE_TEETH=fq['teeth'], EVE_FACE_PFX=fpfx, EVE_FACE_OUT=face_rel + '.mesh.241111606',
+                 EVE_FACE_BODY=f'{D}/2/{opre}2.mesh.241111606')
+        r = run([BL, '--background', TPL, '--python', SCRIPTS + 'build_eve_face.py', '--', B, ST], B + 'face.log', env=e)
+        log('face', r.returncode, 'tracebacks', open(B + 'face.log', encoding='utf-8').read().count('Traceback'))
+        if r.returncode != 0 or not os.path.exists(ST + f'natives/stm/{face_rel}.mesh.241111606'): raise SystemExit('face build failed')
+        fspecs = [mat_spec(suit, m, png) for m in fq['keep']]
+        for sp in fspecs:
+            sp_fx = fq.get('fx', {}).get(sp[0])
+            if sp_fx is not None: sp[7] = sp_fx
+            if sp[0] == fq['skin']: sp[1] = 'skin'
+            elif sp[1] == 'skin': sp[1] = 'std'   # teeth (SB skin shading model) are not face skin
+            if sp[0] in fq.get('hex', {}): sp[1] = 'flat'; sp[6] = fq['hex'][sp[0]]   # texture-less SB colours (brows / lashes)
+        json.dump(fspecs, open(B + 'face_tex.json', 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
+        fkeys = [f'{fpfx}{i:02d}' for i in range(len(fq['keep']) + 2)]
+        e = dict(env, EVE_TEX_JSON=B + 'face_tex.json', EVE_MAT_PREFIX=fpfx, EVE_TEX_REL=f'stellar/{tag}/face/tex',
+                 EVE_MDF_NAME=f'{tag}_face', EVE_MDF_DIR=f'stellar/{tag}/face', EVE_MDF_SKIP=','.join(fkeys[len(fq['keep']):]))
+        r = run([BL, '--background', TPL, '--python', SCRIPTS + 'build_eve_default_tex.py', '--', srcs, ST + 'natives/stm', B + 'face_tex_report.json'], B + 'face_tex.log', env=e)
+        log('face mdf', r.returncode, 'tracebacks', open(B + 'face_tex.log', encoding='utf-8').read().count('Traceback'))
     for k, (src, keep) in hide_mdf.items():
         n, stem = k.split('/')
         r = blender(SCRIPTS + 'eve_mdf_drop.py', [src, ST + f'natives/stm/{D}/{n}/{stem}.mdf2.45', ','.join(keep)], blend=TPL)
@@ -352,6 +406,7 @@ def main():
                 hidePhys=[f'{opre}{n}' for n in (1, 3, 4, 5) if n not in (bodyN, drapeN) and any(f.startswith(f'{opre}{n}.') for f in parts.get(n, []))] +
                          [k.split('/')[1] for k in hide_extra])
     if bodyN != 2: info['dropKeys'] = [f'{opre}2']; info['unhide'] = [f'{opre}{bodyN}']
+    if face_rel: info['face'] = {'mesh': face_rel + '.mesh', 'mdf': face_rel + '.mdf2'}
     if drapeN: info.setdefault('unhide', []).append(f'{opre}{drapeN}')
     json.dump(info, open(B + 'info.json', 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
     if q.get('memo') and ('마름모' in q['memo'] or '원형' in q['memo']):
@@ -407,6 +462,7 @@ def do_install(info, B, ST):
     for k in info.get('dropKeys', []):
         a.get('outfits', {}).pop(k, None); a.get('chainFix', {}).pop(k, None)
     a.setdefault('outfits', {})[info['body']] = 'stellar-eve/' + jn
+    if info.get('face'): a.setdefault('faces', {})[info['body']] = info['face']
     if info['chainFix']: a.setdefault('chainFix', {})[info['body']] = info['chainFix']
     hp = set(a.get('hidePhys', [])); hp.update(info['hidePhys']); hp.difference_update(info.get('unhide', []))
     if info.get('twin'):

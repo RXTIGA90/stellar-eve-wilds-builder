@@ -27,14 +27,19 @@ BUILD, STAGE = sys.argv[sys.argv.index('--') + 1:]
 import eve_paths as EP
 P = EP.WORK
 FACE_H = P + 'wilds-hair/natives/stm/art/model/character/ch00/001/0000/ch00_001_0000.mesh.241111606'
-EH = P + 'eve-head/SB/Content/Art/Character/PC/CH_P_EVE_Head/CH_P_EVE_Face_Jali3.glb'
-HAIR_F = P + 'eve-hair/SB/Content/Art/Character/PC/CH_P_EVE_Hair/CH_P_EVE_Hair_Seperate_001-1/CH_P_EVE_Hair_Seperate_001-1_Hair_V01.glb'
+# another character's head (10-25, Scarlet): EVE_FACE_GLB (her facial glb), EVE_FACE_HAIR='' (her hair is in the body mesh),
+# EVE_FACE_KEEP / _SKIN / _EYE / _TEETH (her material names), EVE_FACE_PFX, EVE_FACE_OUT, EVE_FACE_BODY (preview body)
+EH = os.environ.get('EVE_FACE_GLB') or P + 'eve-head/SB/Content/Art/Character/PC/CH_P_EVE_Head/CH_P_EVE_Face_Jali3.glb'
+HAIR_F = os.environ.get('EVE_FACE_HAIR', P + 'eve-hair/SB/Content/Art/Character/PC/CH_P_EVE_Hair/CH_P_EVE_Hair_Seperate_001-1/CH_P_EVE_Hair_Seperate_001-1_Hair_V01.glb')
 SWORD_F = P + 'eve-sword01-full/SB/Content/Art/Character/Weapon/Sword/CH_W_Sword_01/CH_W_Sword_01_Folded.glb'   # hairpin form of Eve's sword
 HAIRPIN_FIT = EP.DATA + 'hairpin_fit.json'   # fit_hairpin.py: socket SC_SwordingPoint on the head
-BODY = STAGE + '/natives/stm/art/model/character/ch03/002/101/2/ch03_002_1012.mesh.241111606'
-OUT = STAGE + '/natives/stm/stellar/eve27/face/eve27_face.mesh.241111606'
+BODY = STAGE + '/natives/stm/' + os.environ.get('EVE_FACE_BODY', 'art/model/character/ch03/002/101/2/ch03_002_1012.mesh.241111606')
+OUT = STAGE + '/natives/stm/' + os.environ.get('EVE_FACE_OUT', 'stellar/eve27/face/eve27_face.mesh.241111606')
 # NewMaterial = Eve's eyelashes (strand geometry, no texture): dropped before, the eyes looked bare / too big (user)
 KEEP = ['MI_EVE_Head_V02_Jali', 'MI_EyeRefractive1', 'MI_Teeth', 'MI_EyeBrow1', 'MI_EVE_HR_01_TypeA', 'NewMaterial', 'CH_W_Sword_02_Blade_Body']   # = evf00..06 (build_eve_default_tex.py EVE_OUTFIT=face); the ponytail moved to the body part
+if os.environ.get('EVE_FACE_KEEP'): KEEP = os.environ['EVE_FACE_KEEP'].split(',')
+SKIN_M = os.environ.get('EVE_FACE_SKIN', 'MI_EVE_Head_V02_Jali'); EYE_M = os.environ.get('EVE_FACE_EYE', 'MI_EyeRefractive1')
+TEETH_M = os.environ.get('EVE_FACE_TEETH', 'MI_Teeth'); FPFX = os.environ.get('EVE_FACE_PFX', 'evf')
 R90 = Matrix.Rotation(math.radians(90), 4, 'X'); R90i = R90.inverted()
 YAW = Matrix.Rotation(math.radians(-90), 4, 'Z')
 rep = {}
@@ -119,7 +124,7 @@ hskin = [h_local(p) for o in h_face for p in verts_world(o)]
 
 # ---------------- Eve head ----------------
 face, fheads = import_glb(EH)
-hairf, _ = import_glb(HAIR_F)
+hairf = import_glb(HAIR_F)[0] if HAIR_F else None
 # hairpin (folded sword) only with EVE_HAIRPIN=1: in game Eve carries the Wilds weapon, the hairpin form is not wanted
 hairt = None
 if os.environ.get('EVE_HAIRPIN') == '1':
@@ -131,7 +136,7 @@ for o in [x for x in (face, hairf, hairt) if x]:
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 face_head = YAW @ fheads['Bip001-Head']; tail_head = face_head
 face.data.transform(Matrix.Translation(eve_head_bl - face_head))
-hairf.data.transform(Matrix.Translation(eve_head_bl))                    # front hair file is head-local (origin = head)
+if hairf: hairf.data.transform(Matrix.Translation(eve_head_bl))          # front hair file is head-local (origin = head)
 if hairt: hairt.data.transform(Matrix.Translation(eve_head_bl - tail_head))
 rep['faceHeadOffset_cm'] = round((eve_head_bl - face_head).length * 100, 2)
 # drop overlay materials (tear line, eye shadow occlusion, eye light, eye blend, teeth occlusion, lash card)
@@ -148,12 +153,12 @@ def verts_of(mat):
     for p in face.data.polygons:
         if p.material_index == mi.get(mat, -1): s.update(p.vertices)
     return s
-eye_v = verts_of('MI_EyeRefractive1'); teeth_v = verts_of('MI_Teeth')
+eye_v = verts_of(EYE_M); teeth_v = verts_of(TEETH_M)
 FW = [face.matrix_world @ v.co for v in face.data.vertices]
 eL = centroid([FW[i] for i in eye_v if FW[i].x > 0]); eR = centroid([FW[i] for i in eye_v if FW[i].x <= 0])
 eL_l, eR_l = e_local(eL), e_local(eR)
 e_teeth = e_local(centroid([FW[i] for i in teeth_v]))
-skin_v = verts_of('MI_EVE_Head_V02_Jali')
+skin_v = verts_of(SKIN_M)
 eskin = [e_local(FW[i]) for i in skin_v]
 
 # ---------------- landmark map A (hunter head-local -> Eve head-local) ----------------
@@ -279,7 +284,7 @@ for o in [o for o in mesh_col.objects if o.type == 'MESH' and not o.data.polygon
 objs.sort(key=lambda o: KEEP.index(o.data.materials[o.data.polygons[0].material_index].name))
 prev = {}
 for sub, o in enumerate(objs):
-    m = o.data.materials[o.data.polygons[0].material_index]; key = f'evf{KEEP.index(m.name):02d}'
+    m = o.data.materials[o.data.polygons[0].material_index]; key = f'{FPFX}{KEEP.index(m.name):02d}'
     o.data.materials.clear(); o.data.materials.append(bpy.data.materials.get(key) or bpy.data.materials.new(key))
     o.name = f'Group_0_Sub_{sub}__{key}'; prev[o.name] = key
     o.parent = bind
@@ -311,7 +316,7 @@ for o in body:
 FACET = {'evf00': (HEADT + 'Tex_P_EVE_Head_A.png', None), 'evf01': (None, (0.82, 0.8, 0.8)), 'evf02': (None, (0.9, 0.88, 0.84)),
          'evf03': (None, (0.12, 0.09, 0.07)), 'evf04': (None, (0.10, 0.075, 0.055)), 'evf05': (None, (0.03, 0.025, 0.02)), 'evf06': (P + 'eve-sword01-full/SB/Content/Art/Character/Weapon/Sword/CH_W_Sword_01/Textures/CH_W_Sword_02_D.png', None)}
 for o in parts:
-    pth, rgb = FACET[prev[o.name]]
+    pth, rgb = FACET.get(prev[o.name], (None, (0.82, 0.68, 0.6)))
     o.data.materials[0] = img_mat('p_' + prev[o.name], pth if pth and os.path.exists(pth) else None, rgb)
 scene = bpy.context.scene
 scene.render.engine = 'BLENDER_WORKBENCH'
@@ -362,6 +367,6 @@ shot('expr_jaw_vs_hunter', hc2, FWD, 0.62, (900, 600))
 for a_ in (bind, harm):
     for pb in a_.pose.bones: pb.rotation_quaternion = (1, 0, 0, 0)
 rep['renders'] = renders
-bpy.ops.wm.save_as_mainfile(filepath=os.path.join(BUILD, 'eve27_face.blend'))
+bpy.ops.wm.save_as_mainfile(filepath=os.path.join(BUILD, os.path.basename(OUT).split('.')[0] + '.blend'))
 json.dump(rep, open(os.path.join(BUILD, 'face_report.json'), 'w'), indent=1, default=str)
 print('done')

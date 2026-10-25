@@ -92,14 +92,16 @@ report['skinProfile'] = {'profile': 'EVE_COMMON_SKIN_SOURCE_V1' if SKIN_PROFILE 
                          'adapter_rough_add': float(os.environ.get('EVE_SKIN_ROUGH_ADD', '0.18'))}
 
 
-def skin(d, n, orss):
+def skin(d, n, orss, tint_hex=None):
     SKIN_CALLS.append(d)
     d = img(d); n = img(n); o = img(orss)
     lift = float(os.environ.get('EVE_SKIN_LIFT', '1.08'))   # approved look 10-18 (with BaseTint, SSS 1): default for every Eve outfit
     radd = float(os.environ.get('EVE_SKIN_ROUGH_ADD', '0.18'))   # Eve's skin read wet / oily under Wilds lighting
     if radd: o = o.copy(); o[..., 1] = np.clip(o[..., 1] + radd, 0, 1)
     if SKIN_PROFILE == 'common_v1':   # img() keeps the stored sRGB values (Non-Color), so decode exactly once here
-        d = d.copy(); d[..., :3] = srgb_encode(srgb_decode(d[..., :3]) * TINT_LINEAR)
+        # tint_hex: the material's own SB BaseTint (another character, e.g. Scarlet F9E6E7); Eve keeps F6D7D9
+        _tl = srgb_decode(np.array(srgb_hex(tint_hex)[:3], np.float32)) if tint_hex else TINT_LINEAR
+        d = d.copy(); d[..., :3] = srgb_encode(srgb_decode(d[..., :3]) * _tl)
         return pack(d, 0.0, o[..., 1], o[..., 0], n[..., 0], n[..., 1])
     if os.environ.get('EVE_SKIN_TINT') == '1':
         tint = np.array([0xF6, 0xD7, 0xD9], np.float32) / 255.0
@@ -264,9 +266,9 @@ if os.environ.get('EVE_OUTFIT') == '09' or os.environ.get('EVE_AUTO_PRESET') == 
 # Eye: the original refractive eye shader composites sclera (T_EyeScleraBaseColor x ScleraBrightness 1.6) and the iris
 # (S_EyeIrisBaseColor) inside 'Iris UV Radius' 0.145 around the UV centre, with a darker limbus (width 0.045).
 # Using the iris texture over the whole eyeball made the eyes look black.
-def eye():
+def eye(iris_name='S_EyeIrisBaseColor'):
     s = 1024
-    scl = img('T_EyeScleraBaseColor', s)[..., :3]; iris = img('S_EyeIrisBaseColor', s)[..., :3]
+    scl = img('T_EyeScleraBaseColor', s)[..., :3]; iris = img(iris_name, s)[..., :3]
     u = (np.arange(s) + 0.5) / s; U, V = np.meshgrid(u, u)
     r = np.sqrt((U - 0.5) ** 2 + (V - 0.5) ** 2); R = float(os.environ.get('EVE_IRIS_R', '0.145'))
     iu = np.clip(((U - 0.5) / (2 * R) + 0.5) * (s - 1), 0, s - 1).astype(int); iv = np.clip(((V - 0.5) / (2 * R) + 0.5) * (s - 1), 0, s - 1).astype(int)
@@ -284,6 +286,23 @@ def eye():
     out = np.dstack([alb, np.ones((s, s))]).astype(np.float32)
     return pack(out, 0.0, 0.08, 1.0, 0.5, 0.5)
 MATERIALS['MI_EyeRefractive1'] = eye
+
+
+def sb_hair(adir, root_hex, tip_hex, rough=0.38, rev=False):
+    # SB hair shader texture 'ADIR' (R alpha / coverage, G depth, B strand id, A root -> tip) with the material's RootColor /
+    # TipColor: colour runs root -> tip along A, strands vary by id, depth darkens the inner layers; alpha from R.
+    # rev (fx hairRev, Scarlet 10-25): A read as 0 at the root / 1 at the tip -- read the other way 73 % of her hair took the
+    # dark tip colour and looked pink-purple instead of SB's light silver
+    t_ = img(adir)
+    a, dep, sid = t_[..., 0], t_[..., 1], t_[..., 2]
+    root = t_[..., 3] if t_.shape[-1] > 3 else np.ones_like(a)
+    r_ = np.array(srgb_hex(root_hex)[:3], np.float32); tp = np.array(srgb_hex(tip_hex)[:3], np.float32)
+    k = np.clip(root if rev else 1.0 - root, 0, 1)[..., None]
+    col = r_[None, None] * (1 - k) + tp[None, None] * k
+    col = col * (0.85 + 0.3 * sid[..., None]) * (0.75 + 0.25 * dep[..., None])
+    s_ = a.shape[0]
+    out = np.dstack([np.clip(col, 0, 1), np.ones((s_, s_))]).astype(np.float32)
+    return pack(out, 0.0, np.full((s_, s_), rough, np.float32), np.clip(0.6 + 0.4 * dep, 0, 1), 0.5, 0.5, alpha=a)
 # EVE_OUTFIT=auto + EVE_TEX_JSON: material list written by make_eve_auto.py, in build_eve_outfit.py key order:
 # [[material, kind, base, orm_or_orss, normal, stocking_mask_or_null, flat_hex], ...]; kind = std | skin | flat
 if os.environ.get('EVE_OUTFIT') == 'auto':
@@ -407,6 +426,8 @@ if os.environ.get('EVE_OUTFIT') == 'auto':
                 nrro = nrro.copy()
                 if 'roughSet' in fx: nrro[..., 0] = float(fx['roughSet'])
                 if 'roughMul' in fx: nrro[..., 0] = np.clip(nrro[..., 0] * float(fx['roughMul']), 0.02, 1)
+            if 'metalMul' in fx:   # metal is stored inverted in the albedo alpha
+                albd = albd.copy(); albd[..., 3] = 1.0 - np.clip((1.0 - albd[..., 3]) * float(fx['metalMul']), 0, 1)
             if 'metalSet' in fx:
                 albd = albd.copy(); albd[..., 3] = 1.0 - float(fx['metalSet'])
             if fx.get('emissive'):
@@ -427,9 +448,13 @@ if os.environ.get('EVE_OUTFIT') == 'auto':
                 report.setdefault('emissive', {})[mat] = round(float(m.mean()), 4)
             return albd, nrro, atos
         def _f0():
+            # another SB character's special shaders (10-25, Scarlet): hair cards and eyes
+            if fx.get('sbHair') and fx['sbHair'][0] in png_index: return sb_hair(*fx['sbHair'][:3], rev=bool(fx.get('hairRev')))
+            if fx.get('sbEye') and fx['sbEye'] in png_index: return eye(fx['sbEye'])
             if kind == 'flat' or not a_ or a_ not in png_index: return flat(hexc or '808080', float(fx.get('flatRough', 0.55)) if fx else 0.55)
             if kind == 'skin':
-                albd, nrro, atos = skin(a_, n_ if n_ in png_index else 'CH_EVE_BaseBody_V02_F2_N', o_ if o_ in png_index else 'CH_EVE_BaseBody_V02_F1_ORSS')
+                albd, nrro, atos = skin(a_, n_ if n_ in png_index else 'CH_EVE_BaseBody_V02_F2_N', o_ if o_ in png_index else 'CH_EVE_BaseBody_V02_F1_ORSS',
+                                        (fx or {}).get('skinTint'))
                 if stk and stk in png_index:      # SB stocking layer baked as sheer ~30 denier black (as Moran, user 10-18)
                     m = img(stk, albd.shape[0])[..., int((fx or {}).get('stkCh', 0))]
                     lum = np.clip((albd[..., :3] @ np.array([0.3, 0.59, 0.11], np.float32))[..., None], 0, 1)

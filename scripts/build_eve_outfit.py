@@ -109,6 +109,9 @@ PART_DIR = STAGE + '/natives/stm/art/model/character/' + OC.get('odir', f'ch03/0
 OPRE = OC.get('opre', f'ch03_002_{SUB}')     # output part file prefix: <OPRE><part>.mesh
 PFX = os.environ.get('EVE_MAT_PREFIX', OC.get('pfx', 'evo'))   # must match the outfit's mdf (10-18: bikini rebuilt with evo = whole body invisible)
 KEYS = OC['keys'] + ['MI_EVE_HR_01_Tail_TypeA', 'CH_W_Sword_02_Blade_Body']   # same order as build_eve_default_tex.py EVE_OUTFIT=<id> (ponytail, folded-sword hair ornament last)
+# ownHair: another Stellar Blade character (Scarlet) whose hair is in her own mesh -> no Eve ponytail / hairpin; the two
+# Eve keys stay in KEYS (unused) so material numbering and the texture builder keep their order
+OWN_HAIR = bool(OC.get('ownHair'))
 R90 = Matrix.Rotation(math.radians(90), 4, 'X')   # game Y up -> Blender Z up (RE Mesh Editor armature space)
 R90i = R90.inverted()
 report = {}
@@ -796,6 +799,49 @@ if TOE_EXTRA:
         M = arm.matrix_world.inverted() @ Matrix.Translation(h) @ Quaternion((1.0, 0.0, 0.0), -math.radians(TOE_EXTRA)).to_matrix().to_4x4() @ Matrix.Translation(-h) @ arm.matrix_world
         pt.matrix = M @ pt.matrix; bpy.context.view_layer.update()
     report['toeExtraDeg'] = TOE_EXTRA
+# heelGround (Scarlet's tall block heels, user 10-25: "the toes still float -- the front must lie flat on the floor"): her heel
+# is taller than the levelled foot allows, so the ball of the foot hung in the air. Turn the whole foot toes-down about the
+# ankle until the forefoot's lowest point is level with the heel's, then lay the toe part flat (twice: each step moves the other)
+def _foot_lows(f):
+    dg = bpy.context.evaluated_depsgraph_get(); ev = suit.evaluated_get(dg).data
+    gi = {suit.vertex_groups[n].index for n in (W2E.get(f'{f}_Foot'), W2E.get(f'{f}_Toe')) if n and n in suit.vertex_groups}
+    ay = (arm.matrix_world @ arm.pose.bones[W2E[f'{f}_Foot']].head).y
+    pts = [suit.matrix_world @ ev.vertices[v.index].co for v in suit.data.vertices if any(g.group in gi and g.weight > 0.5 for g in v.groups)]
+    return min((p.z for p in pts if p.y < ay - 0.05), default=0.0), min((p.z for p in pts if p.y > ay), default=0.0)
+if OC.get('heelGround'):
+    _hg = OC['heelGround']
+    for f in 'LR':
+        if f'{f}_Foot' not in W2E or f'{f}_Toe' not in W2E: continue
+        if not isinstance(_hg, bool):
+            # a number: turn the foot exactly that many degrees toes-down (user 10-25 picks from previews), then the toe flat
+            pa = arm.pose.bones[W2E[f'{f}_Foot']]; h = arm.matrix_world @ pa.head
+            M = arm.matrix_world.inverted() @ Matrix.Translation(h) @ Quaternion((1.0, 0.0, 0.0), math.radians(float(_hg))).to_matrix().to_4x4() @ Matrix.Translation(-h) @ arm.matrix_world
+            pa.matrix = M @ pa.matrix; bpy.context.view_layer.update()
+            for _ in range(4):
+                pitch = sole_pitch(f, ('Toe',))
+                if abs(pitch) < math.radians(0.5): break
+                pt = arm.pose.bones[W2E[f'{f}_Toe']]; h = arm.matrix_world @ pt.head
+                M = arm.matrix_world.inverted() @ Matrix.Translation(h) @ Quaternion((1.0, 0.0, 0.0), -pitch).to_matrix().to_4x4() @ Matrix.Translation(-h) @ arm.matrix_world
+                pt.matrix = M @ pt.matrix; bpy.context.view_layer.update()
+            report.setdefault('heelGroundDeg', {})[f] = float(_hg)
+            report.setdefault('heelGroundGap_cm', {})[f] = round((_foot_lows(f)[0] - _foot_lows(f)[1]) * 100, 2)
+            continue
+        # heelGroundFlat False (user 10-25 previews): keep the toe angle (toeExtra), only tilt the foot until the toe reaches the floor
+        for _round in range(2 if OC.get('heelGroundFlat', True) else 1):
+            for _ in range(8):
+                fz, hz = _foot_lows(f); d = fz - hz
+                if abs(d) < 0.002: break
+                pa = arm.pose.bones[W2E[f'{f}_Foot']]; h = arm.matrix_world @ pa.head
+                M = arm.matrix_world.inverted() @ Matrix.Translation(h) @ Quaternion((1.0, 0.0, 0.0), math.atan(d / 0.16)).to_matrix().to_4x4() @ Matrix.Translation(-h) @ arm.matrix_world
+                pa.matrix = M @ pa.matrix; bpy.context.view_layer.update()
+                report.setdefault('heelGroundDeg', {})[f] = round(report.get('heelGroundDeg', {}).get(f, 0) + math.degrees(math.atan(d / 0.16)), 1)
+            for _ in range(4 if OC.get('heelGroundFlat', True) else 0):
+                pitch = sole_pitch(f, ('Toe',))
+                if abs(pitch) < math.radians(0.5): break
+                pt = arm.pose.bones[W2E[f'{f}_Toe']]; h = arm.matrix_world @ pt.head
+                M = arm.matrix_world.inverted() @ Matrix.Translation(h) @ Quaternion((1.0, 0.0, 0.0), -pitch).to_matrix().to_4x4() @ Matrix.Translation(-h) @ arm.matrix_world
+                pt.matrix = M @ pt.matrix; bpy.context.view_layer.update()
+        report.setdefault('heelGroundGap_cm', {})[f] = round((_foot_lows(f)[0] - _foot_lows(f)[1]) * 100, 2)
 report['solePitchAfterDeg'] = {f: [round(math.degrees(sole_pitch(f, FOOT_PARTS)), 1), round(math.degrees(sole_pitch(f, ('Toe',))), 1)] for f in 'LR' if f'{f}_Foot' in W2E}
 bpy.ops.object.mode_set(mode='OBJECT')
 bpy.ops.object.select_all(action='DESELECT'); suit.select_set(True); bpy.context.view_layer.objects.active = suit
@@ -808,6 +854,65 @@ if abs(sole) > 0.002:
     suit.data.transform(Matrix.Translation((0, 0, -sole))); arm.data.transform(Matrix.Translation((0, 0, -sole)))
 report['soleDrop_cm'] = round(sole * 100, 2)
 EW = {n: arm.matrix_world @ b.head_local for n, b in arm.data.bones.items()}   # Eve joints, Blender world, re-posed
+# dropBones (Scarlet without her hat, user 10-25: "make a version without the hat first, fix the hair, then put it back"):
+# the vertices weighted mostly to these bones and their children are removed (the hat's chains then find no vertices)
+if OC.get('dropBones'):
+    import bmesh as _bm
+    _drop = set()
+    for _r in OC['dropBones']:
+        if _r in arm.data.bones: _drop |= {_r} | {d.name for d in arm.data.bones[_r].children_recursive}
+    _gd = {suit.vertex_groups[n].index for n in _drop if n in suit.vertex_groups}
+    _kill = [v.index for v in suit.data.vertices if sum(g.weight for g in v.groups if g.group in _gd) > 0.5]
+    _b = _bm.new(); _b.from_mesh(suit.data); _b.verts.ensure_lookup_table()
+    _bm.ops.delete(_b, geom=[_b.verts[i] for i in _kill], context='VERTS'); _b.to_mesh(suit.data); _b.free(); suit.data.update()
+    report['dropBones'] = [len(_drop), len(_kill)]
+# meshRotate [{match, exclude, pivot, deg}] (Scarlet's leg drape, user 10-25: "still in the middle, in SB it hangs more to the
+# side"): swings the vertices weighted to the matching bones (and those bones) outward about the pivot bone, round the
+# body's forward axis; deg > 0 = the lower end away from the body's middle
+for _mr in OC.get('meshRotate', []):
+    _bn = [n for n in EW if _mr['match'] in n and not (_mr.get('exclude') and _mr['exclude'] in n)]
+    if not _bn or _mr['pivot'] not in EW: continue
+    _sx = 1.0 if sum(EW[n].x for n in _bn) >= 0 else -1.0
+    _R = Matrix.Rotation(-_sx * math.radians(float(_mr['deg'])), 4, 'Y'); _pv = EW[_mr['pivot']].copy()
+    _T = Matrix.Translation(_pv) @ _R @ Matrix.Translation(-_pv)
+    _gi = {suit.vertex_groups[n].index for n in _bn if n in suit.vertex_groups}
+    _mw = suit.matrix_world; _mi = _mw.inverted(); _nv = 0
+    for v in suit.data.vertices:
+        w_ = min(1.0, sum(g.weight for g in v.groups if g.group in _gi))
+        if w_ > 0.001:
+            p_ = _mw @ v.co; v.co = _mi @ (p_.lerp(_T @ p_, w_)); _nv += 1
+    for n in _bn: EW[n] = _T @ EW[n]
+    report.setdefault('meshRotate', []).append([_mr['match'], _mr['deg'], len(_bn), _nv])
+# meshShift {bone substring: [back, out, up] m} (Scarlet's purple strip, user 10-25: "put it under the white cloth"): moves
+# the vertices weighted to those bones (by weight) and the bones themselves; out = away from the body's middle on its side
+# A 4th item 'island' (user 10-25: moved by weight the strip bent where its weights fade): the whole connected mesh
+# piece(s) holding those vertices moves as one, as long as it is a small separate piece (under 5000 vertices)
+for _sub, _ms in OC.get('meshShift', {}).items():
+    _bk, _out, _up = _ms[:3]
+    _bn = [n for n in EW if _sub in n]
+    if not _bn: continue
+    _sx = 1.0 if sum(EW[n].x for n in _bn) >= 0 else -1.0
+    _off = Vector((_sx * _out, _bk, _up))          # Eve faces -Y: back = +Y
+    _gi = {suit.vertex_groups[n].index for n in _bn if n in suit.vertex_groups}
+    _mi3 = suit.matrix_world.inverted().to_3x3(); _nv = 0
+    _wv = {v.index: min(1.0, sum(g.weight for g in v.groups if g.group in _gi)) for v in suit.data.vertices}
+    if len(_ms) > 3 and _ms[3] == 'island':
+        _adj = {}
+        for e_ in suit.data.edges:
+            a_, b_ = e_.vertices; _adj.setdefault(a_, []).append(b_); _adj.setdefault(b_, []).append(a_)
+        _isl = set(); _todo = [i for i, w_ in _wv.items() if w_ > 0.3]
+        while _todo:
+            i = _todo.pop()
+            if i in _isl: continue
+            _isl.add(i); _todo.extend(j for j in _adj.get(i, ()) if j not in _isl)
+            if len(_isl) > 5000: break
+        if len(_isl) <= 5000: _wv = {i: (1.0 if i in _isl else 0.0) for i in _wv}
+        report.setdefault('meshShiftIsland', []).append([_sub, len(_isl)])
+    for v in suit.data.vertices:
+        w_ = _wv[v.index]
+        if w_ > 0.001: v.co += _mi3 @ (_off * w_); _nv += 1
+    for n in _bn: EW[n] = EW[n] + _off
+    report.setdefault('meshShift', []).append([_sub, len(_bn), _nv])
 # limb thickness (user 10-19: arms / legs looked thicker or thinner from outfit to outfit -- every SB costume carries its own
 # body sculpt): measure the mean skin radius around each limb segment; with a reference file (Diver / Blue Monsoon, row 149)
 # every outfit's limbs (skin and the cloth on them) are scaled radially to the reference
@@ -942,111 +1047,117 @@ report['extraBones'] = {n: [par, [round(x, 3) for x in pos]] for n, (par, pos) i
 # ---------------- ponytail: in the body part, rigged like the vanilla Wilds ponytail (hairstyle 31) ----------------
 # (moved out of the face mesh: only the body part has a chain2 the game loads for us)
 import numpy as np
-PT_GLB = P + 'eve-hair/SB/Content/Art/Character/PC/CH_P_EVE_Hair/CH_P_EVE_Hair_PonyTail_2.glb'
-pobjs = new_objects(lambda: bpy.ops.import_scene.gltf(filepath=PT_GLB))
-pt_arm = next(o for o in pobjs if o.type == 'ARMATURE')
-pt = next(o for o in pobjs if o.type == 'MESH' and not o.name.startswith('Icosphere'))
-for pb in pt_arm.pose.bones: pb.matrix_basis = Matrix.Identity(4)
-bpy.context.view_layer.update()
-_rr = report.get('rawRestore'); restore_raw_positions(PT_GLB, pt); report['ptRaw'] = report.get('rawRestore'); report['rawRestore'] = _rr
-if pt.data.shape_keys: pt.shape_key_clear()
-# same placement as the outfit: yaw -90 deg, then the sole drop
-# EVE_PT_SHIFT (forward, down in m): the SB tie sits ~4 cm behind the skull; hanging under gravity from there the tail left a
-# gap to the back of the head in game (user 10-18) -> pull the whole ponytail onto the crown (Eve faces -Y)
-_ptf, _ptd = (float(x) for x in os.environ.get('EVE_PT_SHIFT', '0.035,0.015').split(','))
-PT_PLACE = Matrix.Translation((0, -_ptf, (-sole if abs(sole) > 0.002 else 0) - _ptd)) @ Matrix.Rotation(math.radians(-90), 4, 'Z')
-Bpts = [PT_PLACE @ (pt_arm.matrix_world @ pt_arm.data.bones[f'Ab-TL-HairB0{i}'].head_local) for i in range(1, 10)]
-pt.data.transform(PT_PLACE @ pt.matrix_world); pt.parent = None; pt.matrix_world = Matrix.Identity(4)
-for m_ in list(pt.modifiers): pt.modifiers.remove(m_)
-for o in pobjs:
-    if o is not pt: bpy.data.objects.remove(o, do_unlink=True)
-pt.vertex_groups.clear()
-K_PT, PT_SIDE, PT_STEP, PT_W = 3, (-0.02, 0.0, 0.02), float(os.environ.get('EVE_PT_STEP', '0.10')), 0.035
-# vanilla Wilds ponytail rig (hairstyle 31, ch01_001_0518): 3 chains side by side (left / centre / right, 2 cm apart, linked
-# in the chain2), every bone unrotated (world-aligned, like all vanilla hair joints), evenly spaced down the tail.
-# (the earlier 8 overlapping chains with bones rolled along the tail stood the ponytail up / fanned it out in game)
-PL = np.array([list(b) for b in Bpts] + [list(Bpts[-1] + (Bpts[-1] - Bpts[-2]))])
-tv = np.array([list(v.co) for v in pt.data.vertices])
-segs = PL[1:] - PL[:-1]
-bt = np.full(len(tv), 1e9); bd = np.full(len(tv), 1e9)
-for i, (a, sv) in enumerate(zip(PL[:-1], segs)):
-    u = np.clip(((tv - a) @ sv) / (sv @ sv), 0, 1); d = np.linalg.norm(tv - (a + u[:, None] * sv), axis=1)
-    mm = d < bd; bd[mm] = d[mm]; bt[mm] = i + u[mm]
-tpar = bt
+if not OWN_HAIR:
+    PT_GLB = P + 'eve-hair/SB/Content/Art/Character/PC/CH_P_EVE_Hair/CH_P_EVE_Hair_PonyTail_2.glb'
+    pobjs = new_objects(lambda: bpy.ops.import_scene.gltf(filepath=PT_GLB))
+    pt_arm = next(o for o in pobjs if o.type == 'ARMATURE')
+    pt = next(o for o in pobjs if o.type == 'MESH' and not o.name.startswith('Icosphere'))
+    for pb in pt_arm.pose.bones: pb.matrix_basis = Matrix.Identity(4)
+    bpy.context.view_layer.update()
+    _rr = report.get('rawRestore'); restore_raw_positions(PT_GLB, pt); report['ptRaw'] = report.get('rawRestore'); report['rawRestore'] = _rr
+    if pt.data.shape_keys: pt.shape_key_clear()
+    # same placement as the outfit: yaw -90 deg, then the sole drop
+    # EVE_PT_SHIFT (forward, down in m): the SB tie sits ~4 cm behind the skull; hanging under gravity from there the tail left a
+    # gap to the back of the head in game (user 10-18) -> pull the whole ponytail onto the crown (Eve faces -Y)
+    _ptf, _ptd = (float(x) for x in os.environ.get('EVE_PT_SHIFT', '0.035,0.015').split(','))
+    PT_PLACE = Matrix.Translation((0, -_ptf, (-sole if abs(sole) > 0.002 else 0) - _ptd)) @ Matrix.Rotation(math.radians(-90), 4, 'Z')
+    Bpts = [PT_PLACE @ (pt_arm.matrix_world @ pt_arm.data.bones[f'Ab-TL-HairB0{i}'].head_local) for i in range(1, 10)]
+    pt.data.transform(PT_PLACE @ pt.matrix_world); pt.parent = None; pt.matrix_world = Matrix.Identity(4)
+    for m_ in list(pt.modifiers): pt.modifiers.remove(m_)
+    for o in pobjs:
+        if o is not pt: bpy.data.objects.remove(o, do_unlink=True)
+    pt.vertex_groups.clear()
+    K_PT, PT_SIDE, PT_STEP, PT_W = 3, (-0.02, 0.0, 0.02), float(os.environ.get('EVE_PT_STEP', '0.10')), 0.035
+    # vanilla Wilds ponytail rig (hairstyle 31, ch01_001_0518): 3 chains side by side (left / centre / right, 2 cm apart, linked
+    # in the chain2), every bone unrotated (world-aligned, like all vanilla hair joints), evenly spaced down the tail.
+    # (the earlier 8 overlapping chains with bones rolled along the tail stood the ponytail up / fanned it out in game)
+    PL = np.array([list(b) for b in Bpts] + [list(Bpts[-1] + (Bpts[-1] - Bpts[-2]))])
+    tv = np.array([list(v.co) for v in pt.data.vertices])
+    segs = PL[1:] - PL[:-1]
+    bt = np.full(len(tv), 1e9); bd = np.full(len(tv), 1e9)
+    for i, (a, sv) in enumerate(zip(PL[:-1], segs)):
+        u = np.clip(((tv - a) @ sv) / (sv @ sv), 0, 1); d = np.linalg.norm(tv - (a + u[:, None] * sv), axis=1)
+        mm = d < bd; bd[mm] = d[mm]; bt[mm] = i + u[mm]
+    tpar = bt
 
 
-def P_at(t):
-    i = int(min(max(math.floor(t), 0), len(PL) - 2)); return PL[i] + (t - i) * (PL[i + 1] - PL[i])
+    def P_at(t):
+        i = int(min(max(math.floor(t), 0), len(PL) - 2)); return PL[i] + (t - i) * (PL[i + 1] - PL[i])
 
 
-def T_at(t):
-    i = int(min(max(math.floor(t), 0), len(PL) - 2)); v = PL[i + 1] - PL[i]; return v / np.linalg.norm(v)
+    def T_at(t):
+        i = int(min(max(math.floor(t), 0), len(PL) - 2)); v = PL[i + 1] - PL[i]; return v / np.linalg.norm(v)
 
 
-def side_axis(t):                                   # world X (Eve's left-right) made square to the tail
-    T = T_at(t); x = np.array([1.0, 0, 0]) - T[0] * T; return x / np.linalg.norm(x)
+    def side_axis(t):                                   # world X (Eve's left-right) made square to the tail
+        T = T_at(t); x = np.array([1.0, 0, 0]) - T[0] * T; return x / np.linalg.norm(x)
 
 
-# user 10-18 (SB side shot): the original tail reads thinner than ours (it hid the hair ornament) -> scale the hair's
-# distance from the tail centre line by EVE_PT_THIN (1 at the tie -> full factor 0.25 m down)
-_thin = float(os.environ.get('EVE_PT_THIN', '0.7'))
-if _thin < 0.999:
-    _c = np.array([P_at(t) for t in tpar])
-    _arc = np.array([np.linalg.norm(P_at(t) - P_at(1.0)) if t > 1.0 else 0.0 for t in tpar])
-    _f = 1.0 - (1.0 - _thin) * np.clip(_arc / 0.25, 0, 1)
-    tv = _c + (tv - _c) * _f[:, None]
-    for v_, p_ in zip(pt.data.vertices, tv): v_.co = Vector(list(p_))
-    bd = bd * _f
-    report['ptThin'] = _thin
-t_end = float(np.percentile(tpar, 99.5))
-tf = np.linspace(1.0, t_end, 2000)
-cum = np.concatenate([[0], np.cumsum([np.linalg.norm(P_at(b) - P_at(a)) for a, b in zip(tf[:-1], tf[1:])])])
-n_seg = max(3, int(round(cum[-1] / PT_STEP)))
-tn = np.interp(np.linspace(0, cum[-1], n_seg + 1), cum, tf); M_PT = len(tn)
+    # user 10-18 (SB side shot): the original tail reads thinner than ours (it hid the hair ornament) -> scale the hair's
+    # distance from the tail centre line by EVE_PT_THIN (1 at the tie -> full factor 0.25 m down)
+    _thin = float(os.environ.get('EVE_PT_THIN', '0.7'))
+    if _thin < 0.999:
+        _c = np.array([P_at(t) for t in tpar])
+        _arc = np.array([np.linalg.norm(P_at(t) - P_at(1.0)) if t > 1.0 else 0.0 for t in tpar])
+        _f = 1.0 - (1.0 - _thin) * np.clip(_arc / 0.25, 0, 1)
+        tv = _c + (tv - _c) * _f[:, None]
+        for v_, p_ in zip(pt.data.vertices, tv): v_.co = Vector(list(p_))
+        bd = bd * _f
+        report['ptThin'] = _thin
+    t_end = float(np.percentile(tpar, 99.5))
+    tf = np.linspace(1.0, t_end, 2000)
+    cum = np.concatenate([[0], np.cumsum([np.linalg.norm(P_at(b) - P_at(a)) for a, b in zip(tf[:-1], tf[1:])])])
+    n_seg = max(3, int(round(cum[-1] / PT_STEP)))
+    tn = np.interp(np.linspace(0, cum[-1], n_seg + 1), cum, tf); M_PT = len(tn)
 
 
-def ptname(k, j): return f'evePT{k:02d}_CH_{j:02d}' if j < M_PT - 1 else f'evePT{k:02d}_CH_end'
+    def ptname(k, j): return f'evePT{k:02d}_CH_{j:02d}' if j < M_PT - 1 else f'evePT{k:02d}_CH_end'
 
 
-PT_BONES = []                                    # (name, head, parent) in Blender world; bones get no rotation
-for k in range(K_PT):
-    par = 'Head'
-    for j, t in enumerate(tn):
-        PT_BONES.append((ptname(k, j), Vector(list(P_at(t) + PT_SIDE[k] * side_axis(t))), par)); par = ptname(k, j)
-ptg = {}
+    PT_BONES = []                                    # (name, head, parent) in Blender world; bones get no rotation
+    for k in range(K_PT):
+        par = 'Head'
+        for j, t in enumerate(tn):
+            PT_BONES.append((ptname(k, j), Vector(list(P_at(t) + PT_SIDE[k] * side_axis(t))), par)); par = ptname(k, j)
+    ptg = {}
 
 
-def ptvg(n):
-    if n not in ptg: ptg[n] = pt.vertex_groups.new(name=n)
-    return ptg[n]
+    def ptvg(n):
+        if n not in ptg: ptg[n] = pt.vertex_groups.new(name=n)
+        return ptg[n]
 
 
-for idx in range(len(tv)):
-    t = tpar[idx]
-    u = float(np.clip((tv[idx] - P_at(t)) @ side_axis(t) / PT_W, -1, 1))
-    kw = {0: max(-u, 0.0), 1: 1 - abs(u), 2: max(u, 0.0)}
-    wh = 0.0
-    if t < tn[0]: wh = 1.0 if t < tn[0] - 0.5 else (tn[0] - t) / 0.5
-    # along the tail: linear between the two nearest nodes (each bone carries the hair from its joint to the next)
-    j = int(np.clip(np.searchsorted(tn, t) - 1, 0, M_PT - 2)); f = float(np.clip((t - tn[j]) / (tn[j + 1] - tn[j]), 0, 1))
-    out = {}
-    if wh > 0: out['Head'] = wh
-    for k, wk in kw.items():
-        if wk <= 0: continue
-        for jj, wj in ((j, 1 - f), (j + 1, f)):
-            if wj > 0: out[ptname(k, jj)] = out.get(ptname(k, jj), 0) + (1 - wh) * wk * wj
-    top = sorted(out.items(), key=lambda kv: -kv[1])[:6]; tot = sum(w for _, w in top) or 1
-    for nm, w in top:
-        if w > 1e-4: ptvg(nm).add([idx], w / tot, 'REPLACE')
-report['ponytail'] = {'verts': len(tv), 'chains': K_PT, 'nodes': M_PT, 'length_m': round(float(cum[-1]), 3),
-                      'spacing_m': [round(float(np.linalg.norm(P_at(b) - P_at(a))), 3) for a, b in zip(tn[:-1], tn[1:])]}
+    for idx in range(len(tv)):
+        t = tpar[idx]
+        u = float(np.clip((tv[idx] - P_at(t)) @ side_axis(t) / PT_W, -1, 1))
+        kw = {0: max(-u, 0.0), 1: 1 - abs(u), 2: max(u, 0.0)}
+        wh = 0.0
+        if t < tn[0]: wh = 1.0 if t < tn[0] - 0.5 else (tn[0] - t) / 0.5
+        # along the tail: linear between the two nearest nodes (each bone carries the hair from its joint to the next)
+        j = int(np.clip(np.searchsorted(tn, t) - 1, 0, M_PT - 2)); f = float(np.clip((t - tn[j]) / (tn[j + 1] - tn[j]), 0, 1))
+        out = {}
+        if wh > 0: out['Head'] = wh
+        for k, wk in kw.items():
+            if wk <= 0: continue
+            for jj, wj in ((j, 1 - f), (j + 1, f)):
+                if wj > 0: out[ptname(k, jj)] = out.get(ptname(k, jj), 0) + (1 - wh) * wk * wj
+        top = sorted(out.items(), key=lambda kv: -kv[1])[:6]; tot = sum(w for _, w in top) or 1
+        for nm, w in top:
+            if w > 1e-4: ptvg(nm).add([idx], w / tot, 'REPLACE')
+    report['ponytail'] = {'verts': len(tv), 'chains': K_PT, 'nodes': M_PT, 'length_m': round(float(cum[-1]), 3),
+                          'spacing_m': [round(float(np.linalg.norm(P_at(b) - P_at(a))), 3) for a, b in zip(tn[:-1], tn[1:])]}
+else:
+    # own hair (Scarlet): her hair is part of the character mesh; no Eve ponytail bones / mesh / chains
+    pt = None; PT_BONES = []; K_PT = 0; M_PT = 0
+    def ptname(k, j): return ''
+    report['ponytail'] = 'own hair'
 
 # ---- hair ornament: Eve's folded sword (SB reference shots, user 10-18): its hilt (black cylinder with the gear disc and the
 # blue clip) sits on the ponytail tie with the hair running through it; the folded blades stand out straight, back and down
 # at about 40 deg, wide faces to the sides. Rigid on the head (like a hair clip).
 HP_GLB = P + 'eve-sword01-full/SB/Content/Art/Character/Weapon/Sword/CH_W_Sword_01/CH_W_Sword_01_Folded.glb'
 hpin = None
-if os.environ.get('EVE_HAIRPIN', '1') == '1':
+if os.environ.get('EVE_HAIRPIN', '1') == '1' and not OWN_HAIR:
     hobjs = new_objects(lambda: bpy.ops.import_scene.gltf(filepath=HP_GLB))
     hsrc = next(o for o in hobjs if o.type == 'MESH' and not o.name.startswith('Icosphere'))
     # hilt = vertices mostly on the gear / panel / grip bones (from the source weights; same vertex order after evaluation)
@@ -1323,6 +1434,12 @@ for _cn in OC.get('capeNarrow', []):
 if OC.get('autoChains', True):
     _skip = ('Breast', 'Hip', 'Thigh', 'Calf', 'Knee', 'Elbow', '-Tw', 'Pectro', 'Trape', 'Deltoid', 'Becep', 'Tricep', 'Venter',
              'Ankle', 'Toe', 'Finger', 'Hand', 'Neck', 'Head', 'Clavicle', 'Hair', 'Pony', 'Brochi', 'Butt', 'Pelvis', 'Shoes', 'Side', 'Shoulder')
+    if OC.get('hairChains'):   # own hair (Scarlet): her hair strands become physics chains like the cloth ones
+        # ('-Side' still skips the arm helper Ab-R-Side, but her front locks Ab_Hair_Side_* become chains, user 10-25)
+        _skip = tuple(('-Side' if x == 'Side' else x) for x in _skip if x != 'Hair')
+    # chainLongest (Scarlet's back ornaments / leg drape, 10-25): at a fork follow the branch with the most bones, so the
+    # whole strip is one chain; the side pieces (bows, tabs) ride on the node they branch from
+    _long = lambda b: any(x in b.name for x in OC.get('chainLongest', []))
     _vcount = {}
     for v in suit.data.vertices:
         for g in v.groups:
@@ -1332,10 +1449,23 @@ if OC.get('autoChains', True):
         while b and b.name not in E2W: b = b.parent
         return E2W[b.name] if b else 'Hip'
     k0 = len(SKIRT); found = []
-    lines = []
+    lines = []; BRANCH = set()
     def _walk(b):
         # a single line of bones from b; where it forks, every branch is walked as its own line (ribbon fans)
         line = [b]
+        if _long(b) or b.name in BRANCH:
+            while line[-1].children:
+                # ties: the branch that is not a branchSkip side piece stays on the main line (Scarlet's drape end vs its flare)
+                line.append(max(line[-1].children, key=lambda c: (len(c.children_recursive), not any(z in c.name for z in OC.get('branchSkip', [])),
+                                                                  'Acc' not in c.name)))
+            if len(line) >= 2: lines.append(line)
+            # side pieces of 2+ bones (tabs, ribbons, the flare) hang as their own chains from the node they branch at: held
+            # rigidly on that node they stuck out sideways in game (user 10-25); branchSkip ones (bow loops) stay on the node
+            for x in line[:-1]:
+                for c in x.children:
+                    if c not in line and c.children and not any(z in c.name for z in OC.get('branchSkip', [])):
+                        BRANCH.add(c.name); _walk(c)
+            return
         while len(line[-1].children) == 1 and not any(x in line[-1].children[0].name for x in _skip): line.append(line[-1].children[0])
         if len(line) >= 2: lines.append(line)
         for c in line[-1].children:
@@ -1348,16 +1478,31 @@ if OC.get('autoChains', True):
     for line in lines:
         b = line[0]
         if b.name in HELPER_SK: continue
-        if 'Skirt' in b.name and len(line) < 6: continue   # cloth skirts stay skinned (user, Moran); long ones are mechanical tassets
+        _inl = {x.name for l_ in lines if l_ is not line and l_[0].name in BRANCH for x in l_}
+        if b.name in BRANCH:
+            if b.parent.name not in HELPER_SK: continue
+            L_ = sum(((EW[line[i + 1].name] - EW[line[i].name]).length for i in range(len(line) - 1)))
+            if L_ < 0.04 or sum(_vcount.get(x.name, 0) for x in line) < 60:   # too small: back onto its node
+                for x in line + [d for x in line for d in x.children_recursive]: HELPER_SK.setdefault(x.name, HELPER_SK[b.parent.name])
+                continue
+        elif 'Skirt' in b.name and len(line) < 6 and not _long(b): continue   # cloth skirts stay skinned (user, Moran); long ones are mechanical tassets
         if any(x in b.name for x in OC.get('chainSkip', [])): continue   # per outfit: stays skinned (Holiday Rabbit hood strings, 10-19)
         L_ = sum(((EW[line[i + 1].name] - EW[line[i].name]).length for i in range(len(line) - 1)))
-        if L_ < 0.10 or sum(_vcount.get(x.name, 0) for x in line) < 120: continue
-        k = k0 + len(found); par = _anc(b); bones = []
+        if b.name not in BRANCH and (L_ < 0.10 or sum(_vcount.get(x.name, 0) for x in line) < 120): continue
+        k = k0 + len(found); par = HELPER_SK[b.parent.name] if b.name in BRANCH else _anc(b); bones = []
         par = next((v for x, v in OC.get('chainRoot', {}).items() if x in b.name), par)   # per outfit root (Planet Dive 7th cape: Spine_2)
+        _deep = _long(b) or b.name in BRANCH
         for j, x in enumerate(line):
             nm = f'eveSK_{k}_{j}'; PT_BONES.append((nm, EW[x.name].copy(), par)); HELPER_SK[x.name] = nm; bones.append(nm); par = nm
+            if _deep: continue
             for d in x.children_recursive:
-                if d not in line and d.name not in HELPER_SK: HELPER_SK[d.name] = nm
+                if d not in line and d.name not in HELPER_SK and d.name not in _inl: HELPER_SK[d.name] = nm
+        if _deep:
+            # chainLongest lines (10-25 bug: side pieces landed on node 0 -- the drape's top -- and stretched in game): each side
+            # piece rides the node it branches from, so the deepest node first
+            for j in range(len(line) - 1, -1, -1):
+                for d in line[j].children_recursive:
+                    if d not in line and d.name not in HELPER_SK and d.name not in _inl: HELPER_SK[d.name] = f'eveSK_{k}_{j}'
         tip = EW[line[-1].name] + (EW[line[-1].name] - EW[line[-2].name]) * 0.8
         PT_BONES.append((f'eveSK_{k}_end', tip, par)); bones.append(f'eveSK_{k}_end')
         kind = 'mech' if any(x in b.name for x in ('Spring', 'Blade', 'Wing', 'Tail', 'Hose', 'Cable', 'Skirt', 'Sword', 'Mech')) else \
@@ -1415,6 +1560,11 @@ for root in OC.get('skirtThigh', []):
     sd = root.split('-')[1]; j = 1
     while f'{root}-{j:02d}' in arm.data.bones:
         t = min(0.75, 0.25 * (j - 1)); SPLIT[f'{root}-{j:02d}'] = {'Hip': 1.0 - t, f'{sd}_Thigh': t}; j += 1
+# boneTo [[bone substring, joint], ...] (Scarlet's leg drape and back strip, user 10-25: "in game it never matches -- show me
+# previews first"): those bones ride a body joint instead of physics, so the game shows what the preview shows. First match wins.
+for _bn in arm.data.bones:
+    _t = next((j_ for x_, j_ in OC.get('boneTo', []) if x_ in _bn.name), None)
+    if _t and _t in NG: SPLIT[_bn.name] = {_t: 1.0}
 # elbow correctives (Elbow / Elbow-Point / BrochiUp sit on the upper arm and follow half the elbow bend in the original;
 # merged whole into the upper arm they left a sharp crease): half upper arm, half forearm = a half-angle elbow
 for s in 'LR':
@@ -1446,6 +1596,22 @@ for v in suit.data.vertices:
         if n not in E2W: merged.add(n)
         t = E2W[n] if n in E2W else E2W[mapped_ancestor(n)]
         acc[t] = acc.get(t, 0) + vg.weight
+    # heightBlend [[bone prefix, [[z, joint], ...]], ...] (Scarlet's drape / back strip, user 10-25: "still awkward, smooth it"):
+    # a vertex mostly on those bones gets its joints from its height, blended linearly between the listed heights, so the
+    # cloth bends smoothly from the hip over the thigh to the shin instead of breaking at each SB bone
+    for _pre, _zs in OC.get('heightBlend', []):
+        _sh = sum(vg.weight for vg in v.groups if suit.vertex_groups[vg.group].name.startswith(_pre))
+        if _sh < 0.5: continue
+        _z = (suit.matrix_world @ v.co).z
+        if _z >= _zs[0][0]: _bl = {_zs[0][1]: 1.0}
+        elif _z <= _zs[-1][0]: _bl = {_zs[-1][1]: 1.0}
+        else:
+            i_ = next(i for i in range(len(_zs) - 1) if _zs[i][0] >= _z >= _zs[i + 1][0])
+            (z0, j0), (z1, j1) = _zs[i_], _zs[i_ + 1]; t_ = (z0 - _z) / max(1e-6, z0 - z1)
+            _bl = {}; _bl[j0] = _bl.get(j0, 0) + 1 - t_; _bl[j1] = _bl.get(j1, 0) + t_
+        acc = _bl; _hbz = report.setdefault('heightBlend', {}).setdefault(_pre, [0, 9.0, -9.0])
+        _hbz[0] += 1; _hbz[1] = round(min(_hbz[1], _z), 3); _hbz[2] = round(max(_hbz[2], _z), 3)
+        break
     # The hunter knee is a double hinge: the motion turns L_Knee AND its child L_Shin by the same angle (jog: 56.5 deg each,
     # 113 deg in total) and the hunter calf skin rides L_Shin. Eve's calf therefore goes to *_Shin (full bend, same as the
     # foot); only where her skin blends thigh -> calf (the knee) half of the calf share stays on *_Knee.
@@ -1650,15 +1816,17 @@ for n, h, par in PT_BONES:
     eb = bind.data.edit_bones.new(n); eb.head = Vector((0, 0, 0)); eb.tail = Vector((0, 0.03, 0))
     eb.matrix = Matrix.Translation(h) @ R90; eb.length = 0.03; eb.parent = bind.data.edit_bones[par]; eb.use_connect = False
 bpy.ops.object.mode_set(mode='OBJECT')
-for c in list(pt.users_collection): c.objects.unlink(pt)
-mesh_col.objects.link(pt)
+if pt is not None:
+    for c in list(pt.users_collection): c.objects.unlink(pt)
+    mesh_col.objects.link(pt)
 if hpin:
     for c in list(hpin.users_collection): c.objects.unlink(hpin)
     mesh_col.objects.link(hpin)
     while len(hpin.data.uv_layers) > 1: hpin.data.uv_layers.remove(hpin.data.uv_layers[-1])
     for ca in list(hpin.data.color_attributes): hpin.data.color_attributes.remove(ca)
-while len(pt.data.uv_layers) > 1: pt.data.uv_layers.remove(pt.data.uv_layers[-1])
-for ca in list(pt.data.color_attributes): pt.data.color_attributes.remove(ca)
+if pt is not None:
+    while len(pt.data.uv_layers) > 1: pt.data.uv_layers.remove(pt.data.uv_layers[-1])
+    for ca in list(pt.data.color_attributes): pt.data.color_attributes.remove(ca)
 while len(suit.data.uv_layers) > 1: suit.data.uv_layers.remove(suit.data.uv_layers[-1])
 for ca in list(suit.data.color_attributes): suit.data.color_attributes.remove(ca)
 for c in list(suit.users_collection): c.objects.unlink(suit)
@@ -1835,14 +2003,74 @@ if any(n == 'eveORN_CH_00' for n, _, _ in PT_BONES):
     groups.append(g)
     report['ornGroup'] = len(nodes)
 links = []
-for a, b in ((0, 1), (1, 2)):
+for a, b in (((0, 1), (1, 2)) if K_PT else ()):
     L_ = copy.deepcopy(vpc.ChainLinkList[0])
     L_.terminateNodeNameHashA = hash_wide(ptname(a, M_PT - 1)); L_.terminateNodeNameHashB = hash_wide(ptname(b, M_PT - 1))
     links.append(L_)
 c2.ChainLinkList = links; c2.Header.chainLinkCount = len(links)
 bone_hashes = {hash_wide(b.name) for b in bind.data.bones}
-cols = [copy.deepcopy(c_) for c_ in vpc.ChainCollisionList] + [_spine2_back_capsule()]
+# backCapsule False (Scarlet's own hair, 10-25): the big Spine_2 capsule made for Eve's ponytail pushed her back hair out
+cols = [copy.deepcopy(c_) for c_ in vpc.ChainCollisionList] + ([_spine2_back_capsule()] if OC.get('backCapsule', True) else [])
 c2.ChainCollisionList = [c_ for c_ in cols if c_.jointNameHash in bone_hashes and c_.pairJointNameHash in bone_hashes]
+if OC.get('fitCollisions') and SKIRT:
+    # Scarlet's own hair (user 10-25: front locks stood out forward, the back hair floated off the back): the vanilla hunter
+    # hair capsules (head + the shoulder capsule behind the neck) sat right where her strands start and pushed them out.
+    # Instead, capsules fitted to her own strands at rest: a torso capsule from Spine_1 to the neck, shifted forward so its
+    # surface lies just inside both the back hair and the front locks, and a neck -> head capsule just inside the strands
+    # round the head. At rest nothing is pushed; moving, the strands slide over her back / chest instead of going through.
+    _tpl = next(c_ for c_ in vpc.ChainCollisionList if c_.chainCollisionShape == 2)
+    _pp = {n: h for n, h, _ in PT_BONES}
+    _hn = lambda kinds: [_pp[n] for i_, b_ in enumerate(SKIRT) if SKIRT_KIND.get(i_) in kinds for n in b_[1:]]
+    def _cap(ja, wa, jb, wb, r):
+        c_ = copy.deepcopy(_tpl)
+        la = (R90 @ NG[ja]).inverted() @ wa; lb = (R90 @ NG[jb]).inverted() @ wb
+        for k_, v_ in dict(posX=la.x, posY=la.y, posZ=la.z, pairPosX=lb.x, pairPosY=lb.y, pairPosZ=lb.z, rotOffsetX=0.0, rotOffsetY=0.0,
+                           rotOffsetZ=0.0, rotOffsetW=1.0, radius=r, endRadius=r, lerp=0.0, chainCollisionShape=2, div=0, collisionFilterFlags=-1).items():
+            setattr(c_, k_, v_)
+        c_.jointNameHash = hash_wide(ja); c_.pairJointNameHash = hash_wide(jb)
+        return c_
+    def _segd(p, a, b):
+        ab = b - a; t = max(0.0, min(1.0, (p - a).dot(ab) / ab.length_squared)); return (p - (a + ab * t)).length, (p - a).dot(ab) / ab.length_squared
+    A, B, H = [(R90 @ NG[n]).translation.copy() for n in ('Spine_1', 'Neck_0', 'Head')]
+    ax = (B - A).normalized()
+    perp = lambda p: (p - A) - ax * (p - A).dot(ax)
+    fr, bk = _hn(('hairF',)), _hn(('hairL',))
+    _cols = []
+    _mg = float(OC.get('hairColRadius', 0.02)) + 0.004 if OC.get('fitCollisions') == 2 else 0.015   # clearance to the strands at rest
+    if fr and bk:
+        fwd = (sum((perp(p) for p in fr), Vector()) / len(fr) - sum((perp(p) for p in bk), Vector()) / len(bk)).normalized()
+        inr = lambda p: 0.0 <= (p - A).dot(ax) <= (B - A).length
+        db = min((-perp(p).dot(fwd) for p in bk if inr(p)), default=0.1); df = min((perp(p).dot(fwd) for p in fr if inr(p)), default=0.1)
+        f_ = (df - db) / 2; r_ = (df + db) / 2 - 0.02
+        wa, wb = A + fwd * f_, B + fwd * f_
+        r_ = min(r_, min(_segd(p, wa, wb)[0] for p in _hn(('hairF', 'hairL', 'hairS')) if 0 <= _segd(p, wa, wb)[1] <= 1) - _mg)
+        r_ = max(0.04, min(0.16, r_))
+        _cols.append(_cap('Spine_1', wa, 'Neck_0', wb, r_)); report['fitTorso'] = [round(f_, 3), round(r_, 3), round(db, 3), round(df, 3)]
+    hb = H + (H - B).normalized() * 0.08
+    rh = min((_segd(p, B, hb)[0] for p in _hn(('hairF', 'hairL', 'hairS'))), default=0.06) - _mg
+    rh = max(0.03, min(0.08, rh))
+    _cols.append(_cap('Neck_0', B, 'Head', hb, rh)); report['fitHead'] = round(rh, 3)
+    # the torso one stays thin (her front locks start close to the neck); the locks also rest on the shoulders and the
+    # bust: one capsule per clavicle and one across the bust, each just inside the strands at rest
+    _all = _hn(('hairF', 'hairL', 'hairS'))
+    _pairs = (('L_Shoulder', 'L_UpperArm'), ('R_Shoulder', 'R_UpperArm'), ('L_BustJGL_CH_00', 'R_BustJGL_CH_00'))
+    if OC.get('fitCollisions') == 2:
+        # v2 (user 10-25: the strands now hang right but go through her back / chest when she moves): the hair nodes get a
+        # bigger collision radius (hairColRadius, the strand cards are wider than 1 cm) and more body parts are covered --
+        # the upper arms and each breast on its own; every capsule still stops that radius + 4 mm short of the strands at
+        # rest, so nothing floats
+        _nr = float(OC.get('hairColRadius', 0.02))
+        _pairs = (('L_Shoulder', 'L_UpperArm'), ('R_Shoulder', 'R_UpperArm'), ('L_UpperArm', 'L_Forearm'), ('R_UpperArm', 'R_Forearm'),
+                  ('L_BustJGL_CH_00', 'L_BustJGL_CH_00'), ('R_BustJGL_CH_00', 'R_BustJGL_CH_00'))
+        _cl = lambda wa, wb: min(_segd(p, wa, wb)[0] for p in _all) - _nr - 0.004
+    for ja, jb in _pairs:
+        if ja not in NG or jb not in NG: continue
+        wa, wb = (R90 @ NG[ja]).translation.copy(), (R90 @ NG[jb]).translation.copy()
+        if ja == jb: wb = wa + Vector((0.0, 0.0, 0.001))   # one breast: a sphere on its jiggle joint
+        r_ = (_cl(wa, wb) if OC.get('fitCollisions') == 2 else min(_segd(p, wa, wb)[0] for p in _all) - 0.015)
+        report.setdefault('fitExtra', []).append([ja, jb, round(r_, 3)])
+        if r_ >= 0.025: _cols.append(_cap(ja, wa, jb, wb, min(r_, 0.10)))
+    c2.ChainCollisionList = _cols
 c2.Header.chainModelCollisionCount = len(c2.ChainCollisionList)
 report['ptCollisions'] = [[c_.chainCollisionShape, round(c_.radius, 3), round(c_.endRadius, 3)] for c_ in c2.ChainCollisionList]
 report['ptCollisionsDropped'] = len(cols) - len(c2.ChainCollisionList)
@@ -1860,7 +2088,7 @@ if SKIRT:
     s_orn_ = next((s_ for s_ in c2.ChainSettingsList if s_ is not s_pt and s_.id == s_pt.id + 1), s_pt)
     KSET = {}
     _kinds = {'mech': (0.45, 0.25, 8), 'tie': (0.3, 0.08, 30), 'cloth': (0.2, 0.03, 45), 'drape': (0.25, 0.0, 75), 'veil': (0.4, 0.15, 15)}
-    for _k, _l in OC.get('kindLimit', {}).items(): _kinds[_k] = (_kinds[_k][0], _kinds[_k][1], _l)
+    for _k, _l in OC.get('kindLimit', {}).items(): _kinds[_k] = (_kinds.get(_k, _kinds['cloth'])[0], _kinds.get(_k, _kinds['cloth'])[1], _l)   # new kinds: cloth-like
     for _k, _v in OC.get('kindSet', {}).items(): _kinds[_k] = tuple(_v)
     for kind, (damp, spring, lim) in _kinds.items():
         KSET[kind] = (s_orn_ if kind in ('mech', 'tie') else s_pt, lim)
@@ -1868,13 +2096,19 @@ if SKIRT:
     for gi_, bones in enumerate(SKIRT):
         kind = SKIRT_KIND.get(gi_)
         g = copy.deepcopy(vg); g.settingID = KSET[kind][0].id if kind else s_sk.id; g.terminateNodeNameHash = hash_wide(bones[-1])
+        # noClsp kinds (Scarlet's hair, user 10-25: front locks stood out forward, back hair off the back with any limits or
+        # capsules): clspFlags -1 also collides with the game's own body collision presets, sized for the hunter in bulky
+        # armour, which pushed the strands outward round the neck; off -> only this file's capsules (fitCollisions) count
+        if kind in OC.get('noClsp', []): g.clspFlags0 = g.clspFlags1 = 0
         nodes = []
         for j, nm in enumerate(bones):
             n_ = copy.deepcopy(vg.nodeList[min(j, len(vg.nodeList) - 2)] if j < len(bones) - 1 else vg.nodeList[-1])
-            n_.windCoef = 0.4; n_.angleLimitRad = math.radians(KSET[kind][1] if kind else float(os.environ.get('EVE_SKIRT_LIMIT', '25')))
+            n_.windCoef = float(OC.get('kindWind', {}).get(kind, 0.4)); n_.angleLimitRad = math.radians(KSET[kind][1] if kind else float(os.environ.get('EVE_SKIRT_LIMIT', '25')))
             if kind == 'drape' and j > 0 and OC.get('drapeNodeLimit'): n_.angleLimitRad = math.radians(float(OC['drapeNodeLimit']))
-            if kind == 'drape': n_.gravityCoef = float(OC.get('drapeGravity', 1.0))   # Blue Samurai sleeves stood out like paper (user 10-20)
+            if kind == 'drape': n_.gravityCoef = float(OC.get('drapeGravity', 1.0))
+            if kind in OC.get('kindGravity', {}): n_.gravityCoef = float(OC['kindGravity'][kind])   # low: holds its rest shape   # Blue Samurai sleeves stood out like paper (user 10-20)
             n_.collisionRadius = 0.01
+            if OC.get('fitCollisions') == 2 and kind in OC.get('noClsp', []): n_.collisionRadius = float(OC.get('hairColRadius', 0.02))
             if j < len(bones) - 1:
                 dg = (R90i.to_3x3() @ (pt_pos[bones[j + 1]] - pt_pos[nm])).normalized(); q = Vector((1.0, 0.0, 0.0)).rotation_difference(dg)
             else:
@@ -1885,9 +2119,23 @@ if SKIRT:
         for sg in g.subGroupList: sg.nodeList = copy.deepcopy(nodes)
         groups.append(g)
     cap = next((c_ for c_ in c2.ChainCollisionList if c_.chainCollisionShape == 2), None)
-    if cap is not None and OC.get('skirtChains'):
+    if cap is not None and (OC.get('skirtChains') or OC.get('legCaps')):
+        # legCaps (Scarlet's leg drape, 10-25): the shin too, so the drape lies on the leg instead of sinking into it
+        _lc = (('{}_Thigh', '{}_Knee', 0.06, 0.05),) + ((('{}_Knee', '{}_Foot', 0.05, 0.04),) if OC.get('legCaps') else ())
+        # drapeCap (Scarlet's leg drape, user 10-25: "too far to the middle, in SB it hangs more to the side"): on that side the
+        # leg capsules stand out sideways by 'out' and are fatter -- they play the sword her cloth hung over in SB
+        _dc = OC.get('drapeCap')
+        if _dc:
+            _sd = _dc['side']; _ox = 1.0 if (R90 @ NG[f'{_sd}_Thigh']).translation.x >= 0 else -1.0
+            for ja, jb, rr, k_ in ((f'{_sd}_Thigh', f'{_sd}_Knee', _dc['thigh'], 1.0), (f'{_sd}_Knee', f'{_sd}_Foot', _dc['shin'], 0.8)):
+                o_ = Vector((_ox * _dc['out'] * k_, 0.0, 0.0))
+                la = (R90 @ NG[ja]).inverted() @ ((R90 @ NG[ja]).translation + o_); lb = (R90 @ NG[jb]).inverted() @ ((R90 @ NG[jb]).translation + o_)
+                c_ = copy.deepcopy(cap); c_.jointNameHash = hash_wide(ja); c_.pairJointNameHash = hash_wide(jb)
+                c_.posX, c_.posY, c_.posZ, c_.pairPosX, c_.pairPosY, c_.pairPosZ = la.x, la.y, la.z, lb.x, lb.y, lb.z; c_.radius = c_.endRadius = rr
+                c2.ChainCollisionList.append(c_)
         for sd in 'LR':
-            for a_, b_, r0, r1 in ((f'{sd}_Thigh', f'{sd}_Knee', 0.06, 0.05),):   # inside the thigh surface: pushes only when a leg swings into a panel
+            if _dc and sd == _dc['side']: continue
+            for a_, b_, r0, r1 in ((a.format(sd), b.format(sd), r0_, r1_) for a, b, r0_, r1_ in _lc):   # inside the thigh surface: pushes only when a leg swings into a panel
                 c_ = copy.deepcopy(cap); c_.jointNameHash = hash_wide(a_); c_.pairJointNameHash = hash_wide(b_)
                 c_.posX = c_.posY = c_.posZ = c_.pairPosX = c_.pairPosY = c_.pairPosZ = 0.0; c_.radius = r0; c_.endRadius = r1
                 c2.ChainCollisionList.append(c_)

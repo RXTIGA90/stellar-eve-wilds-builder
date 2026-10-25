@@ -141,6 +141,7 @@ def install():
         for body in [info['body']] + ([info['twin']['body']] if info.get('twin') else []):
             reg['outfits'][body] = 'stellar-eve/' + jn
         if info.get('chainFix'): reg['chainFix'][info['body']] = info['chainFix']
+        if info.get('face'): reg.setdefault('faces', {})[info['body']] = info['face']   # own face (Scarlet), Lua swaps to it
         if info.get('twin') and info['twin'].get('chainFix'): reg['chainFix'][info['twin']['body']] = info['twin']['chainFix']
         hp.update(info.get('hidePhys', []))
         if info.get('twin'): hp.update(info['twin']['hidePhys'])

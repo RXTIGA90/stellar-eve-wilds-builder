@@ -63,7 +63,8 @@ def main():
     for o in chosen:                                               # remembered: later installs keep this default look
         open(EP.WORK + f'innerwear-{o}.selected', 'w').close()
     qall = json.load(open(EP.DATA + 'night_queue.json', encoding='utf-8'))
-    queue = [q['row'] for q in qall if rows is None or str(q['row']) in rows]
+    # "wip" rows (10-25: Scarlet, another character still being made) are built only when asked for by --rows
+    queue = [q['row'] for q in qall if (rows is None and not q.get('wip')) or (rows is not None and str(q['row']) in rows)]
     # outfits this Stellar Blade does not have (DLC not installed) are skipped, not failed
     lst = EP.WORK + 'sb_pc_list.txt'
     have = open(lst, encoding='utf-8', errors='replace').read().lower() if os.path.exists(lst) else None
