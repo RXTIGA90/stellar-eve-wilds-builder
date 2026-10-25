@@ -258,5 +258,174 @@
    "-"
   ],
   "memo": null
+ },
+ {
+  "row": 961,
+  "armor": "슈바르카γ",
+  "path": "ch03/032/0301",
+  "parts": "-",
+  "eve": "홍련",
+  "code": [
+   "Scarlet",
+   "CH_M_NA_961",
+   "-"
+  ],
+  "memo": null,
+  "character": "scarlet",
+  "face": {
+   "glb": "CH_M_NA_961_Facial",
+   "skin": "MI_CH_M_NA_961_Head",
+   "eye": "MI_CH_M_NA_961_Eyes",
+   "teeth": "MI_CH_M_NA_961_Teeth",
+   "keep": [
+    "MI_CH_M_NA_961_Head",
+    "MI_CH_M_NA_961_Eyes",
+    "MI_CH_M_NA_961_Teeth",
+    "MI_CH_M_NA_961_Eyelashes"
+   ],
+   "hex": {
+    "MI_CH_M_NA_961_Eyelashes": "1A1819"
+   }
+  },
+  "ovr": {
+   "toeExtra": "-20",
+   "bust": "match",
+   "chainSkip": [
+    "Ab-R-SkirtQ"
+   ],
+   "hairChains": true,
+   "backCapsule": false,
+   "legCaps": true,
+   "chainLongest": [
+    "Ab_Tail00",
+    "Ab-R-SkirtQ-01",
+    "Ab-L-SkirtA-01"
+   ],
+   "chainKind": {
+    "Tail03_Acc": "ribbon",
+    "AccA": "ribbon",
+    "AccB": "ribbon",
+    "SkirtAA": "ribbon",
+    "Tail": "backcloth",
+    "SkirtQ": "backstrip",
+    "SkirtA": "frontcloth",
+    "LongHair": "hairL",
+    "Hair_Bc": "hairL",
+    "ShortHair": "hairS",
+    "Hair_Fr": "hairS",
+    "Hair_Side": "hairF",
+    "Hair_ex": "hairF"
+   },
+   "kindLimit": {
+    "backcloth": 25,
+    "backstrip": 8,
+    "legdrape": 6,
+    "ribbon": 15,
+    "hairL": 35,
+    "hairS": 8,
+    "hairF": 30,
+    "frontcloth": 20
+   },
+   "fitCollisions": 2,
+   "branchSkip": [
+    "SkirtQ-Acc",
+    "SkirtA-Acc",
+    "SkirtAA"
+   ],
+   "kindWind": {
+    "hairL": 0.15,
+    "hairS": 0.1,
+    "hairF": 0.1,
+    "ribbon": 0.2,
+    "legdrape": 0.2,
+    "backstrip": 0.2,
+    "backcloth": 0.25,
+    "frontcloth": 0.25
+   },
+   "noClsp": [
+    "hairL",
+    "hairS",
+    "hairF"
+   ],
+   "meshRotate": [
+    {
+     "match": "Ab-L-SkirtA",
+     "exclude": "SkirtA-01",
+     "pivot": "Ab-L-SkirtA-02",
+     "deg": 12
+    }
+   ],
+   "kindGravity": {
+    "frontcloth": 0.5
+   },
+   "heelGround": true,
+   "heelGroundFlat": false,
+   "boneTo": [
+    [
+     "Ab-R-SkirtQ-04",
+     "R_Thigh"
+    ],
+    [
+     "Ab-R-SkirtQ-05",
+     "R_Thigh"
+    ],
+    [
+     "Ab-R-SkirtQ",
+     "Hip"
+    ]
+   ],
+   "heightBlend": [
+    [
+     "Ab-R-SkirtQ",
+     [
+      [
+       0.98,
+       "Hip"
+      ],
+      [
+       0.72,
+       "R_Thigh"
+      ]
+     ]
+    ]
+   ],
+   "drapeCap": {
+    "side": "L",
+    "out": 0.03,
+    "thigh": 0.085,
+    "shin": 0.06
+   },
+   "meshShift": {
+    "SkirtAA": [
+     0.015,
+     -0.025,
+     0.0,
+     "island"
+    ]
+   },
+   "hairColRadius": 0.02
+  },
+  "fxAdd": {
+   "MI_CH_M_NA_961_01": {
+    "roughMul": 0.6,
+    "metalMul": 1.3
+   },
+   "MI_CH_M_NA_961_02": {
+    "roughMul": 0.55,
+    "metalMul": 1.4
+   },
+   "MI_CH_M_NA_961_03": {
+    "roughMul": 0.45,
+    "metalMul": 1.6
+   },
+   "MI_CH_M_NA_961_Hair": {
+    "sbHair": [
+     "CH_M_NA_961_Hair_ADIR",
+     "C4BECC",
+     "6E6878"
+    ],
+    "hairRev": true
+   }
+  }
  }
 ]

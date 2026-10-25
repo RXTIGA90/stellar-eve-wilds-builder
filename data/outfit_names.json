@@ -284,5 +284,18 @@
   "default_look": false,
   "note_ko": "",
   "note_en": ""
+ },
+ {
+  "id": "961",
+  "eve_ko": "홍련",
+  "eve_en": "Scarlet",
+  "armor_ko": "슈바르카γ",
+  "armor_en": "Arkveld γ",
+  "where_ko": "차림새 메뉴 → 헌터 장비 외형 설정 → 몸통",
+  "where_en": "Appearance menu → Hunter layered armor → Chest",
+  "dlc": "NIKKE",
+  "default_look": false,
+  "note_ko": "이브 의상이 아니라 홍련 캐릭터 (얼굴·머리·모자 포함)",
+  "note_en": "not an Eve outfit: Scarlet herself (her own face, hair and hat)"
  }
 ]
