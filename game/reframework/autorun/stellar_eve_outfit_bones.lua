@@ -45,6 +45,18 @@ end
 -- created once at script start (creating them during a load left parts without materials in earlier tests)
 local eveMesh = holder("via.render.MeshResource", FACE_MESH)
 local eveMdf = holder("via.render.MeshMaterialResource", FACE_MDF)
+-- per-outfit faces (10-25, Scarlet: another Stellar Blade character with her own face): outfits_auto.json
+-- "faces": {body part: {mesh = path, mdf = path}}; every other outfit gets Eve's face. Holders made here at start, too.
+local FACE_HOLDERS = { [FACE_MESH] = { eveMesh, eveMdf } }
+local FACES = {}
+for part, f in pairs(AUTO.faces or {}) do
+    if OUTFITS[part] and type(f) == "table" and f.mesh and f.mdf then
+        FACES[part] = f.mesh
+        if not FACE_HOLDERS[f.mesh] then FACE_HOLDERS[f.mesh] = { holder("via.render.MeshResource", f.mesh), holder("via.render.MeshMaterialResource", f.mdf) } end
+    end
+end
+local function face_for(part) return FACES[part] or FACE_MESH end
+local function is_mod_face(path) return path:find("stellar/", 1, true) ~= nil end   -- every face we ship lives under stellar/
 
 local function comp(go, t) return go and go:call("getComponent(System.Type)", sdk.typeof(t)) end
 
@@ -199,7 +211,7 @@ local function face_still_eve(st)
     local m = face_mesh_component(st.tr)
     if m == nil or m ~= st.mesh then return false end
     local ok, path = pcall(function() return m:call("getMesh"):call("get_ResourcePath") end)
-    if ok and type(path) == "string" and path ~= "" then return path:find("eve27_face", 1, true) ~= nil end
+    if ok and type(path) == "string" and path ~= "" then return path:find((st.faceKey or FACE_MESH):match("([^/]+)%.mesh$"), 1, true) ~= nil end
     return true
 end
 
@@ -276,7 +288,7 @@ local function snapshot_face(st)
     if not m or TOUCHED[m] then return end
     local path = nil
     pcall(function() path = m:call("getMesh"):call("get_ResourcePath") end)
-    if not path or path:find("eve27_face", 1, true) then return end
+    if not path or is_mod_face(path) then return end
     local ftr = st.tr:find("Player_Face")
     if not ftr then return end
     local s = read_face_state(m, ftr)
@@ -290,7 +302,10 @@ end
 
 local function swap_face(st)
     local m = face_mesh_component(st.tr)
-    if not m or not eveMesh or not eveMdf then return false end
+    local key = face_for(st.wearing)
+    local h = FACE_HOLDERS[key]
+    if not h or not h[1] or not h[2] then key = FACE_MESH; h = FACE_HOLDERS[FACE_MESH] end
+    if not m or not h[1] or not h[2] then return false end
     if not HUNTER_FACE then
         local f = json.load_file("stellar-eve/hunter_face_state.json")
         if type(f) == "table" and type(f.joints) == "table" and type(f.mats) == "table" then HUNTER_FACE = f; status.faceStateFromFile = true end
@@ -301,8 +316,8 @@ local function swap_face(st)
     if not st.origMeshPath then
         pcall(function() st.origMeshPath = m:call("getMesh"):call("get_ResourcePath") end)
         pcall(function() st.origMdfPath = m:call("get_Material"):call("get_ResourcePath") end)
-        if st.origMeshPath and st.origMeshPath:find("eve27_face", 1, true) then st.origMeshPath = nil end
-        if st.origMdfPath and st.origMdfPath:find("eve27_face", 1, true) then st.origMdfPath = nil end
+        if st.origMeshPath and is_mod_face(st.origMeshPath) then st.origMeshPath = nil end
+        if st.origMdfPath and is_mod_face(st.origMdfPath) then st.origMdfPath = nil end
         -- 10-18: after Reset Scripts with an Eve outfit on, the face read here is already Eve's, so the hunter face could
         -- not be restored later (Eve's face stayed on normal armour). Keep the hunter face paths in a file: saved
         -- whenever they are read cleanly, used when they are not.
@@ -313,9 +328,9 @@ local function swap_face(st)
             if type(f) == "table" and f.mesh and f.mdf then st.origMeshPath, st.origMdfPath = f.mesh, f.mdf; status.faceFromFile = true end
         end
     end
-    m:setMesh(eveMesh); m:set_Material(eveMdf); m:set_Enabled(true)
+    m:setMesh(h[1]); m:set_Material(h[2]); m:set_Enabled(true)
     set_hair(st, false)
-    st.mesh = m; st.swapped = true
+    st.mesh = m; st.swapped = true; st.faceKey = key
     return true
 end
 
@@ -630,6 +645,8 @@ local function update(st)
     if st.swapped and tick % 60 == 11 and not face_still_eve(st) then
         st.swapped = false; status.faceReswap = (status.faceReswap or 0) + 1
     end
+    -- straight from one outfit to another with a different face (Eve outfit <-> Scarlet): swap again
+    if st.swapped and st.faceKey ~= face_for(st.wearing) then st.swapped = false end
     if eve and st.swapped and tick >= st.waitUntil + 120 and tick % 30 == 5 then vfx_off(st) end
     if st.swapped and tick % 15 == 7 then face_fix(st) end
     if not st.swapped and tick >= st.waitUntil then
