@@ -5,7 +5,7 @@
 <h1 align="center">스텔라 이브 for 몬스터 헌터 와일즈</h1>
 
 <p align="center">
-  몬헌 와일즈를 스텔라 블레이드의 이브와 이브 의상 22벌로 오프라인 플레이하는 모드입니다.<br>
+  몬헌 와일즈를 스텔라 블레이드의 이브와 이브 의상 22벌, 그리고 홍련(니케 콜라보 보스)으로 오프라인 플레이하는 모드입니다.<br>
   내 PC의 두 게임에서 직접 만들어 설치하며, 게임 파일은 들어 있지 않습니다.<br>
   <a href="README.md">English</a> · <b>한국어</b>
 </p>
@@ -98,6 +98,7 @@
 | 190 | **포세컨즈 에브리데이 웨어**<br>FourSeconds Everyday Wear | **노블레스**<br>Noblesse | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_50_TypeB` |
 | 192 | **냉각 슈트**<br>Cooling Suit | **브레이크캣**<br>Cypurrpunk<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_P_EVE_Nikke_06` |
 | 195 | **미싱 링크**<br>Missing Link | **코스모로이드**<br>Cosmoloid | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_P_EVE_Nikke_05` |
+| 961 | **홍련** (이브 의상이 아니라 홍련 캐릭터: 얼굴·머리·모자 포함)<br>Scarlet | **슈바르카γ**<br>Arkveld γ | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | NIKKE | `CH_M_NA_961` |
 | 9041 | **레이서즈 하이**<br>Racer's High | **미츠네β**<br>Mizutsune β<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_41` |
 | 9018 | **데일리 마스코트**<br>Daily Mascot | **레다젤트γ**<br>Rey Dau γ<br>(같은 이름이 두 개면 ◆ 표시가 있는 쪽) | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_18` |
 | 9034 | **모란**<br>Moutan Peony | **이그졸스γ**<br>Nu Udra γ | 차림새 메뉴 → 헌터 장비 외형 설정 → 몸통 | - | `CH_P_EVE_34_body` |

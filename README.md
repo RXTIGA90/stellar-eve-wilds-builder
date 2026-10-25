@@ -5,7 +5,7 @@
 <h1 align="center">Stellar Eve for Monster Hunter Wilds</h1>
 
 <p align="center">
-  Play Monster Hunter Wilds offline as Eve from Stellar Blade, in 22 of her outfits.<br>
+  Play Monster Hunter Wilds offline as Eve from Stellar Blade, in 22 of her outfits, and as Scarlet (the NIKKE collab boss).<br>
   Built on your PC from your own games: no game files are included.<br>
   <b>English</b> · <a href="README.ko.md">한국어</a>
 </p>
@@ -102,6 +102,7 @@
 | 190 | **FourSeconds Everyday Wear**<br>포세컨즈 에브리데이 웨어 | **Noblesse**<br>노블레스 | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_50_TypeB` |
 | 192 | **Cooling Suit**<br>냉각 슈트 | **Cypurrpunk**<br>브레이크캣<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_P_EVE_Nikke_06` |
 | 195 | **Missing Link**<br>미싱 링크 | **Cosmoloid**<br>코스모로이드 | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_P_EVE_Nikke_05` |
+| 961 | **Scarlet** (not an Eve outfit: Scarlet herself, with her own face, hair and hat)<br>홍련 | **Arkveld γ**<br>슈바르카γ | Appearance menu → Hunter layered armor → Chest | NIKKE | `CH_M_NA_961` |
 | 9041 | **Racer's High**<br>레이서즈 하이 | **Mizutsune β**<br>미츠네β<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_41` |
 | 9018 | **Daily Mascot**<br>데일리 마스코트 | **Rey Dau γ**<br>레다젤트γ<br>(if the name appears twice, wear the one marked ◆) | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_18` |
 | 9034 | **Moutan Peony**<br>모란 | **Nu Udra γ**<br>이그졸스γ | Appearance menu → Hunter layered armor → Chest | - | `CH_P_EVE_34_body` |

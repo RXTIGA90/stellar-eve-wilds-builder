@@ -126,7 +126,7 @@ function Get-OutfitMenu {
               @{ row = "63"; name = "Wave Diver Bikini / 웨이브 다이버 비키니"; armor = "default look: innerwear beta type 1 / 기본 외형: 이너웨어 β 타입 1"; dlc = "" })
     foreach ($q in $queue) {
         $dlc = ""
-        if ($q.code[1] -match "Nier") { $dlc = "NieR DLC" } elseif ($q.code[1] -match "Nikke") { $dlc = "NIKKE DLC" }
+        if ($q.code[1] -match "Nier") { $dlc = "NieR DLC" } elseif ($q.code[1] -match "Nikke" -or $q.character) { $dlc = "NIKKE DLC" }
         $armor = ($q.armor -replace '\s*\(.*$', '')
         if ("$($q.row)" -eq "149") { $armor += " (body + waist / 몸통 + 허리)" }   # this outfit's body sits in the waist part
         $menu += @{ row = "$($q.row)"; name = "$($q.eve)"; armor = $armor; dlc = $dlc }
