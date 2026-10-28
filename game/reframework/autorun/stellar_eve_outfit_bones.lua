@@ -36,6 +36,21 @@ local tick = 0
 local targets = {}          -- key -> per-character state
 local status = { loaded = next(OUTFITS) ~= nil, wearing = false, joints = 0, face = false, err = nil, targets = 0 }
 
+-- 10-28 frame check: what this script costs per frame (ms), averaged / max over the last status period -> status.perf
+local PERF = {}
+local clock = (os and os.clock) or function() return 0 end   -- timing only; never breaks the script
+local function perf_add(k, dt)
+    local e = PERF[k]; if not e then e = { n = 0, sum = 0, max = 0 }; PERF[k] = e end
+    e.n = e.n + 1; e.sum = e.sum + dt; if dt > e.max then e.max = dt end
+end
+local function perf_flush()
+    local out = {}
+    for k, e in pairs(PERF) do
+        out[k] = { avg_ms = math.floor(e.sum / math.max(1, e.n) * 1e5 + 0.5) / 100, max_ms = math.floor(e.max * 1e5 + 0.5) / 100, calls = e.n }
+    end
+    status.perf = out; PERF = {}
+end
+
 local function holder(rtype, path)
     local r = sdk.create_resource(rtype, path)
     if not r then return nil end
@@ -226,6 +241,7 @@ end
 -- after the character appeared, and that face component never swapped / restored by us (TOUCHED). Kept in memory and in
 -- data/stellar-eve/hunter_face_state.json, so a session that starts in an Eve outfit uses the last good snapshot.
 local HUNTER_FACE = nil
+local HUNTER_FACE_TRIED = false
 local TOUCHED = setmetatable({}, { __mode = "k" })
 local function v3t(v) return { v.x, v.y, v.z } end
 local function v4t(v) return { v.x, v.y, v.z, v.w } end
@@ -306,8 +322,10 @@ local function swap_face(st)
     local h = FACE_HOLDERS[key]
     if not h or not h[1] or not h[2] then key = FACE_MESH; h = FACE_HOLDERS[FACE_MESH] end
     if not m or not h[1] or not h[2] then return false end
-    if not HUNTER_FACE then
-        local f = json.load_file("stellar-eve/hunter_face_state.json")
+    if not HUNTER_FACE and not HUNTER_FACE_TRIED then
+        HUNTER_FACE_TRIED = true
+        local okg, ex = pcall(fs.glob, [[.*stellar-eve\\hunter_face_state\.json]])
+        local f = (okg and type(ex) == "table" and #ex > 0) and json.load_file("stellar-eve/hunter_face_state.json") or nil
         if type(f) == "table" and type(f.joints) == "table" and type(f.mats) == "table" then HUNTER_FACE = f; status.faceStateFromFile = true end
     end
     TOUCHED[m] = true
@@ -606,7 +624,8 @@ local function update(st)
                             for _, comp in ipairs(fg:call("get_Components"):get_elements()) do
                                 local t = comp:get_type_definition():get_full_name()
                                 if t == "via.effect.EffectPlayer" then pcall(function() comp:call("set_Enabled", false) end) end
-                                if t == "app.AppEffectController" then pcall(function() comp:call("forceDrawOff") end) end
+                                -- (10-28 frame check: forceDrawOff takes an argument; called without one it did nothing and wrote a
+                                -- warning to the REFramework log ~5 times a second. DrawSelf off + EffectPlayer off above already hide it)
                             end
                         end
                     end
@@ -654,11 +673,19 @@ local function update(st)
         if st.master then status.face = ok end
     end
     if st.swapped and tick % 120 == 0 then set_hair(st, false) end
-    if st.swapped then for _, go in ipairs(st.hairMeshes) do go:set_DrawSelf(false) end end
+    -- (10-28 frame check: a hair object destroyed by an armour change / load threw here every frame, aborting update and
+    -- rebuilding the joint list each frame until the next hair scan; now the list is dropped and rescanned instead)
+    if st.swapped then
+        for _, go in ipairs(st.hairMeshes) do
+            if not pcall(function() go:set_DrawSelf(false) end) then st.hairMeshes = {}; st.hairRescan = true; break end
+        end
+        if st.hairRescan and tick % 30 == 17 then st.hairRescan = nil; pcall(set_hair, st, false) end
+    end
     pcall(fix_head_scale, st)
 end
 
 re.on_application_entry("UpdateMotion", function()
+    local t0 = clock()
     local ok, err = pcall(function()
         tick = tick + 1
         local mt = master_transform()
@@ -707,10 +734,12 @@ re.on_application_entry("UpdateMotion", function()
                 end
             end
             status.tick = tick
+            perf_flush()
             json.dump_file("stellar-eve/status.json", status)
         end
     end)
     if not ok then status.err = tostring(err) end
+    perf_add("updateMotion", clock() - t0)
 end)
 
 -- ---------------- two-handed grip (user 10-18: great sword, long sword, charge / switch axe -- the left hand missed the
@@ -879,6 +908,7 @@ end
 -- second), and every frame the master's FINAL hand poses (after the game's own hand IK) are recorded: left hand relative to
 -- the right hand, in the right hand's frame -> status.handRel (latest) / handRelHunter (latest with the Eve outfit off).
 local ctl_tick = 0
+local diag = false   -- 10-28: the per-frame hand / weapon diagnostics run only with control.json "diag": true
 -- moving R_Wep did nothing in game (10-18): the weapon follows its own Wp_Parent / WpSub_Parent objects. Move those instead,
 -- after the motion, by WP_MOVE = {right, up, forward} metres in the character's own frame.
 local WP_MOVE = { 0.0, 0.0, 0.0 }   -- local: a global assignment silently failed in REFramework (10-18)
@@ -1023,10 +1053,22 @@ local function fx_hold()
     end) end
 end
 
+local late_body
 re.on_application_entry("LateUpdateBehavior", function()
+    local t0 = clock()
+    late_body()
+    perf_add("lateUpdate", clock() - t0)
+end)
+late_body = function()
     ctl_tick = ctl_tick + 1
     for _, st in pairs(targets) do pcall(fix_head_scale, st) end
-    if ctl_tick % 10 == 5 then local okf, ef = pcall(fx_away); if not okf then status.fxErr = tostring(ef) end end   -- every frame cost 60 -> 13 fps (10-19); controller off keeps them quiet
+    -- 10-28 frame check: the scene-wide effect scan ran 6 times a second; new effects are caught by the start hook below
+    -- and the found ones are held away every frame (fx_hold), so the scan only has to pick up stragglers twice a second
+    if ctl_tick % 30 == 5 then
+        local t0 = clock()
+        local okf, ef = pcall(fx_away); if not okf then status.fxErr = tostring(ef) end
+        perf_add("fx", clock() - t0)
+    end   -- every frame cost 60 -> 13 fps (10-19); controller off keeps them quiet
     fx_hold()
     if ctl_tick % 60 == 13 then
         -- the file normally does not exist; load_file on a missing file writes an error line to the log every time
@@ -1035,6 +1077,7 @@ re.on_application_entry("LateUpdateBehavior", function()
         if okg and type(found) == "table" and #found > 0 then c = json.load_file("stellar-eve/control.json") end
         if type(c) == "table" then
             if c.enabled ~= nil then enabled = c.enabled end
+            diag = c.diag == true
             if c.grip ~= nil then grip_fix = c.grip end
             if type(c.handFix) == 'number' then hand_fix = c.handFix end
             if type(c.wepOffset) == 'table' then for i = 1, 3 do WEP_OFFSET[i] = tonumber(c.wepOffset[i]) or 0 end end
@@ -1058,7 +1101,7 @@ re.on_application_entry("LateUpdateBehavior", function()
         end
     end
     local m = targets.master
-    if m and m.tr and ctl_tick % 10 == 0 then pcall(function()
+    if diag and m and m.tr and ctl_tick % 10 == 0 then pcall(function()
         local L, Rj = m.tr:getJointByName("L_Hand"), m.tr:getJointByName("R_Hand")
         local rq = Q(Rj:get_Rotation())
         local rel = qrot(qinv(rq), vsub(V(L:get_Position()), V(Rj:get_Position())))
@@ -1120,7 +1163,7 @@ re.on_application_entry("LateUpdateBehavior", function()
             if not ok then status.gripErr = tostring(err) end
         end
     end
-end)
+end
 
 re.on_draw_ui(function()
     if imgui.tree_node("Stellar Eve outfit") then
@@ -1137,7 +1180,7 @@ re.on_draw_ui(function()
 end)
 
 -- the effect system may move its objects back after LateUpdateBehavior: hold them away again just before rendering
-re.on_application_entry("BeginRendering", function() pcall(fx_hold) end)
+re.on_application_entry("BeginRendering", function() local t0 = clock(); pcall(fx_hold); perf_add("beginRender", clock() - t0) end)
 
 -- catch the armour effect the moment it starts (user 10-19: between two scans new sparks still flashed for a few frames):
 -- hook app.AppEffectController.start; an Eve outfit's own effect object (11_ch02_<series>_) is hidden and moved away there
